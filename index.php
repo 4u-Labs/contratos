@@ -483,7 +483,11 @@ $v = time();
     <main class="container mx-auto px-4 py-12 -mt-8">
         <!-- Progress Buttons -->
         <div class="flex flex-wrap justify-center gap-3 mb-10 fade-up">
-            <button id="btnSalvarProgresso" class="progress-btn bg-emerald-500 hover:bg-emerald-600 text-white hover:shadow-lg hover:shadow-emerald-500/25">
+            <button type="button" id="btnPreencherExemplo" class="progress-btn bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white hover:shadow-lg hover:shadow-purple-500/25">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                Preencher Exemplo
+            </button>
+            <button id="btnSalvarProgresso"  class="progress-btn bg-emerald-500 hover:bg-emerald-600 text-white hover:shadow-lg hover:shadow-emerald-500/25">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
                 Salvar Progresso
             </button>
@@ -1161,7 +1165,11 @@ $v = time();
 
             <!-- Botões de Ação -->
             <div class="flex flex-wrap justify-center gap-4 pt-4">
-                <button type="button" id="btnGerarIA" class="btn-gradient flex items-center gap-3 text-lg">
+                <button type="button" id="btnGerarPreviaOffline" class="px-6 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-cyan-400 border border-cyan-500/40 hover:border-cyan-400 font-bold text-base flex items-center gap-2.5 transition-all shadow-lg shadow-cyan-900/30 cursor-pointer">
+                    <i class="fa-solid fa-bolt text-yellow-400"></i>
+                    <span>Pré-visualizar Modelo (Grátis / Sem Créditos)</span>
+                </button>
+                <button type="button" id="btnGerarIA"  class="btn-gradient flex items-center gap-3 text-lg">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                     <span id="btn_gerar_label">Gerar Documento com IA</span>
                 </button>
@@ -2244,6 +2252,193 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
         $('#btnEnviarWhatsAppContratante').click(() => enviarWhatsApp($('#contratante_telefone_whatsapp').val(), 'Contratante'));
         $('#btnEnviarWhatsAppContratado').click(() => enviarWhatsApp($('#contratado_telefone_whatsapp').val(), 'Contratado'));
 
+
+    // ==========================================
+    // PREENCHIMENTO DE DADOS FICTÍCIOS / TESTE
+    // ==========================================
+    function preencherDadosFicticios() {
+        let tipoAtual = $('#tipo_contrato').val();
+        if (!tipoAtual) {
+            $('#tipo_contrato').val('Prestação de Serviços de TI').trigger('change');
+            tipoAtual = 'Prestação de Serviços de TI';
+        }
+
+        const hoje = new Date().toISOString().split('T')[0];
+
+        // Contratante (Pessoa Jurídica)
+        $('#contratante_tipo_pessoa').val('juridica').trigger('change');
+        $('#contratante_nome').val('TechCorp Soluções Tecnológicas & Inovação Ltda');
+        $('#contratante_doc').val('12.345.678/0001-90');
+        $('#contratante_rg').val('12.345.678-9');
+        $('#contratante_nacionalidade').val('Brasileira');
+        $('#contratante_estado_civil').val('casado(a)');
+        $('#contratante_profissao').val('Sociedade Empresária');
+        $('#contratante_endereco').val('Av. Paulista, nº 1000, Conjunto 1402, Bela Vista, São Paulo/SP, CEP 01310-100');
+        $('#contratante_email').val('diretoria@techcorp.com.br');
+        $('#contratante_telefone_whatsapp').val('(11) 98765-4321');
+
+        // Contratado (Pessoa Física / Engenheiro / Prestador)
+        $('#contratado_tipo_pessoa').val('fisica').trigger('change');
+        $('#contratado_nome').val('Fabiano Braga da Silva');
+        $('#contratado_doc').val('123.456.789-00');
+        $('#contratado_rg').val('98.765.432-1');
+        $('#contratado_nacionalidade').val('Brasileiro');
+        $('#contratado_estado_civil').val('solteiro(a)');
+        $('#contratado_profissao').val('Engenheiro de Software & Consultor Técnico');
+        $('#contratado_endereco').val('Rua das Inovações, nº 250, Centro Tecnológico, Florianópolis/SC, CEP 88010-000');
+        $('#contratado_email').val('fabiano@4u.ia.br');
+        $('#contratado_telefone_whatsapp').val('(48) 99123-4567');
+
+        // Objeto personalizado de acordo com a categoria
+        if (tipoAtual.includes('Obra') || tipoAtual.includes('Engenharia') || tipoAtual.includes('Projetos')) {
+            $('#objeto_contrato').val('Execução de serviços técnicos de engenharia civil, elaboração de projetos executivos complementares, acompanhamento de obra e emissão da respectiva ART junto ao CREA.');
+            $('#valor_contrato').val('45.000,00');
+        } else if (tipoAtual.includes('Locação')) {
+            $('#objeto_contrato').val('Locação de imóvel comercial situado na Rua Comercial, nº 500, Sala 301, Centro, Florianópolis/SC.');
+            $('#valor_contrato').val('3.800,00');
+        } else if (tipoAtual.includes('Procuração')) {
+            $('#objeto_contrato').val('Amplos poderes para representação em processos administrativos, celebração de negócios jurídicos e assinatura de termos correlatos.');
+        } else {
+            $('#objeto_contrato').val('Prestação de serviços técnicos de desenvolvimento, implantação e manutenção de sistemas web, consultoria técnica especializada e suporte contínuo.');
+            $('#valor_contrato').val('18.500,00');
+        }
+
+        // Condições Financeiras & Prazos
+        $('#forma_pagamento').val('parcelado').trigger('change');
+        $('#forma_pagamento_desc').val('Entrada de 30% via PIX no ato da assinatura e o saldo restante dividido em 3 parcelas mensais.');
+        $('#data_inicio').val(hoje);
+        $('#data_termino_tipo').val('meses').trigger('change');
+        $('#meses_vigencia').val('6');
+
+        // Foro & Cláusulas
+        $('#cidade_foro').val('São Paulo');
+        $('#estado_foro').val('SP');
+
+        $('#clausula_multa').prop('checked', true);
+        $('#multa_percentual').val('10%');
+        $('#clausula_rescisao').prop('checked', true);
+        $('#dias_aviso_previo').val('30');
+        $('#clausula_confidencialidade').prop('checked', true);
+        $('#clausula_propriedade_intelectual').prop('checked', true);
+        if (typeof updateClausulasUI === 'function') updateClausulasUI();
+
+        Swal.fire({
+            icon: 'success',
+            title: '✨ Dados de Teste Preenchidos!',
+            html: '<p class="text-sm text-slate-300">Todos os campos foram preenchidos com dados fictícios de exemplo.<br><br>👉 Agora clique em <b>"Pré-visualizar Modelo (Grátis)"</b> para ver o contrato instantaneamente sem gastar créditos de IA!</p>',
+            background: '#0f172a',
+            color: '#fff',
+            confirmButtonColor: '#6366f1'
+        });
+    }
+
+    $('#btnPreencherExemplo').click(preencherDadosFicticios);
+
+    // ==========================================
+    // GERADOR DE PRÉVIA OFFLINE (GRÁTIS / SEM CRÉDITOS)
+    // ==========================================
+    function gerarPreviaOffline() {
+        const tipo = $('#tipo_contrato').val() || 'CONTRATO DE PRESTAÇÃO DE SERVIÇOS';
+        const cNome = $('#contratante_nome').val() || 'CONTRATANTE EXEMPLO LTDA';
+        const cDoc = $('#contratante_doc').val() || '00.000.000/0001-00';
+        const cEnd = $('#contratante_endereco').val() || 'Endereço da Contratante, Cidade/UF';
+        const cTipoPessoa = $('#contratante_tipo_pessoa').val() === 'juridica' ? 'Pessoa Jurídica de direito privado' : 'Pessoa Física';
+
+        const pNome = $('#contratado_nome').val() || 'CONTRATADO EXEMPLO DA SILVA';
+        const pDoc = $('#contratado_doc').val() || '000.000.000-00';
+        const pEnd = $('#contratado_endereco').val() || 'Endereço do Contratado, Cidade/UF';
+        const pProfissao = $('#contratado_profissao').val() || 'Profissional Especializado';
+
+        const objeto = $('#objeto_contrato').val() || 'Prestação de serviços técnicos e profissionais especializados.';
+        const valor = $('#valor_contrato').val() || '0,00';
+        const formaPgto = $('#forma_pagamento_desc').val() || 'Pagamento conforme ajustado entre as partes.';
+        const foroCidade = $('#cidade_foro').val() || 'São Paulo';
+        const foroUf = $('#estado_foro').val() || 'SP';
+        const meses = $('#meses_vigencia').val() || '12';
+
+        const dataExtenso = new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        const texto = `${tipo.toUpperCase()}
+
+Pelo presente instrumento particular, de um lado:
+
+CONTRATANTE: ${cNome.toUpperCase()}, ${cTipoPessoa}, inscrita no CNPJ/CPF sob o nº ${cDoc}, com sede/domicílio em ${cEnd};
+
+E, de outro lado:
+
+CONTRATADO(A): ${pNome.toUpperCase()}, ${pProfissao}, inscrito(a) no CPF/CNPJ sob o nº ${pDoc}, residente e domiciliado(a) em ${pEnd};
+
+Têm entre si, justo e acordado, o presente contrato mediante as seguintes cláusulas e condições:
+
+CLÁUSULA PRIMEIRA - DO OBJETO
+1.1. O presente instrumento tem por objeto: ${objeto}
+1.2. Os serviços serão executados com estrita observância das normas técnicas aplicáveis, boa-fé e padrões de qualidade profissional.
+
+CLÁUSULA SEGUNDA - DAS OBRIGAÇÕES DAS PARTES
+2.1. O(A) CONTRATADO(A) compromete-se a prestar os serviços avençados com zelo, dedicação e dentro dos prazos estipulados.
+2.2. O(A) CONTRATANTE compromete-se a fornecer todas as informações, acessos e materiais necessários para a fiel execução dos serviços, bem como efetuar os pagamentos acordados.
+
+CLÁUSULA TERCEIRA - DO PREÇO E CONDIÇÕES DE PAGAMENTO
+3.1. Pelos serviços prestados, o(a) CONTRATANTE pagará ao(à) CONTRATADO(A) o valor total de R$ ${valor}.
+3.2. O pagamento dar-se-á da seguinte forma: ${formaPgto}.
+
+CLÁUSULA QUARTA - DO PRAZO E VIGÊNCIA
+4.1. O presente contrato vigorará pelo prazo de ${meses} meses a contar da data de sua assinatura, podendo ser prorrogado mediante termo aditivo formal por mútuo acordo entre as partes.
+
+CLÁUSULA QUINTA - DA RESCISÃO E MULTA
+5.1. Qualquer das partes poderá rescindir o presente contrato mediante aviso prévio por escrito com antecedência mínima de 30 (trinta) dias.
+5.2. O descumprimento injustificado de quaisquer das cláusulas sujeitará a parte infratora ao pagamento de multa de 10% (dez por cento) sobre o valor total do contrato.
+
+CLÁUSULA SEXTA - DA CONFIDENCIALIDADE E PROTEÇÃO DE DADOS (LGPD)
+6.1. As partes obrigam-se a manter sob sigilo absoluto todas as informações técnicas, comerciais ou pessoais compartilhadas em razão deste contrato, em estrito cumprimento à Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
+
+CLÁUSULA SÉTIMA - DO FORO DE ELEIÇÃO
+7.1. Para dirimir quaisquer controvérsias oriundas do presente instrumento, as partes elegem o Foro da Comarca de ${foroCidade}/${foroUf}, com expressa renúncia a qualquer outro, por mais privilegiado que seja.
+
+E, por estarem assim justas e contratadas, assinam o presente instrumento em 2 (duas) vias de igual teor e forma, na presença de 2 (duas) testemunhas.
+
+${foroCidade} - ${foroUf}, ${dataExtenso}.
+
+
+_______________________________________________
+${cNome.toUpperCase()}
+CONTRATANTE
+
+
+_______________________________________________
+${pNome.toUpperCase()}
+CONTRATADO(A)
+
+
+TESTEMUNHAS:
+
+1. _________________________________
+Nome:
+CPF:
+
+2. _________________________________
+Nome:
+CPF:`;
+
+        $('#resultadoContainer').removeClass('hidden');
+        $('#loadingIA').addClass('hidden');
+        $('#contratoGeradoTexto').val(texto).removeClass('hidden');
+        $('#acoesResultado').removeClass('hidden');
+
+        $('html, body').animate({ scrollTop: $('#resultadoContainer').offset().top - 100 }, 500);
+
+        Swal.fire({
+            icon: 'info',
+            title: '⚡ Pré-visualização Grátis Gerada!',
+            html: '<p class="text-sm text-slate-300">Contrato estruturado gerado sem consumir créditos de IA!<br><br>Você pode editar o texto, clicar em <b>"Assinar Digitalmente"</b> e depois <b>"Baixar PDF Jurídico"</b> para testar todo o fluxo.</p>',
+            background: '#0f172a',
+            color: '#fff',
+            confirmButtonColor: '#6366f1',
+            timer: 3500
+        });
+    }
+
+    $('#btnGerarPreviaOffline').click(gerarPreviaOffline);
 
     // ==========================================
     // ASSINATURA DIGITAL CANVAS
