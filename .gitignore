@@ -1,0 +1,4 @@
+.env
+*.log
+uploads/
+credentials.json
