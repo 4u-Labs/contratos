@@ -1866,7 +1866,37 @@ if (strpos($client_ip, ',') !== false) {
                     </div>
                 </div>
 
-                <!-- Bloco 3: COMO O 4USIGN PRO BLINDA O DOCUMENTO -->
+                <!-- Bloco 3: ONDE FICA A ASSINATURA & RUBRICAS NO DIGITAL -->
+                <div class="p-4 sm:p-5 rounded-2xl bg-indigo-50/70 border border-indigo-200/80">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-black">📍</span>
+                        <h4 class="font-extrabold text-slate-900 text-sm">Onde Fica a Assinatura no Documento?</h4>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-700">
+                        <div class="bg-white p-3.5 rounded-xl border border-indigo-100 shadow-sm">
+                            <b class="text-indigo-950 font-bold flex items-center gap-1.5 mb-1">
+                                <i class="fa-solid fa-wand-magic-sparkles text-indigo-600"></i> Contratos Gerados no 4USign Pro:
+                            </b>
+                            <p class="text-slate-600 leading-relaxed">
+                                Já possuem o <b>campo exato diagramado</b> no bloco formal de encerramento do contrato, exatamente acima do nome das partes e testemunhas.
+                            </p>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl border border-indigo-100 shadow-sm">
+                            <b class="text-indigo-950 font-bold flex items-center gap-1.5 mb-1">
+                                <i class="fa-solid fa-file-pdf text-cyan-600"></i> Documentos Externos (Upload de PDF):
+                            </b>
+                            <p class="text-slate-600 leading-relaxed">
+                                A assinatura e o selo forense (IP, Data/Hora e Hash) são gravados <b>na base da última página do documento</b>, preservando o layout original.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-[11px] text-indigo-950 bg-white/80 border border-indigo-100 p-2.5 rounded-xl flex items-start gap-2">
+                        <i class="fa-solid fa-shield-halved text-indigo-600 text-xs mt-0.5"></i>
+                        <span><b>Precisa rubricar as outras folhas?</b> Não! No meio digital, o <b>Hash SHA-256</b> blinda 100% de todas as páginas ao mesmo tempo. Uma única assinatura no final protege o contrato inteiro contra fraudes e substituição de folhas.</span>
+                    </div>
+                </div>
+
+                <!-- Bloco 4: COMO O 4USIGN PRO BLINDA O DOCUMENTO -->
                 <div class="bg-slate-900 text-white rounded-2xl p-5 text-xs space-y-3 shadow-inner border border-white/10">
                     <div class="font-bold text-sm text-cyan-400 flex items-center gap-2">
                         <i class="fa-solid fa-shield-halved"></i> Como o 4USign Pro Comprova a Validade na Justiça:
