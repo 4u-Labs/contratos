@@ -2951,6 +2951,51 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
     }
 
     // ==========================================
+    // HELPER: CONSTRUÇÃO DO ELEMENTO REAL NO DOM PARA O HTML2PDF
+    // ==========================================
+    function montarElementoParaPdf(texto, assinaturasHtml) {
+        const box = document.createElement('div');
+        box.id = 'pdf-render-mount-point';
+        box.style.position = 'fixed';
+        box.style.left = '0';
+        box.style.top = '0';
+        box.style.width = '794px'; // Largura A4 padrão a 96 DPI
+        box.style.minHeight = '1123px';
+        box.style.background = '#ffffff';
+        box.style.color = '#0f172a';
+        box.style.zIndex = '-99999';
+        box.style.opacity = '1';
+        box.style.padding = '45px 50px';
+        box.style.boxSizing = 'border-box';
+        box.style.fontFamily = '"Times New Roman", Times, serif';
+        box.style.fontSize = '12pt';
+        box.style.lineHeight = '1.65';
+        box.style.textAlign = 'justify';
+
+        let linhasHtml = texto.split('\n').map(l => {
+            const limpa = l.trim();
+            if (limpa.startsWith('===') || limpa.startsWith('---')) return '';
+            if (limpa.includes('QUADRO RESUMO EXECUTIVO')) {
+                return `<div style="text-align: center; font-weight: bold; font-size: 13pt; margin: 20px 0 10px; font-family: Arial, sans-serif; color: #1e1b4b; border-bottom: 2px solid #4338ca; padding-bottom: 4px;">${limpa}</div>`;
+            }
+            if (limpa.length > 5 && limpa === limpa.toUpperCase() && !limpa.startsWith('§') && !/^\d/.test(limpa) && !limpa.startsWith('•')) {
+                return `<div style="text-align: center; font-weight: bold; font-size: 13pt; margin: 22px 0 12px; font-family: Arial, sans-serif; color: #0f172a;">${limpa}</div>`;
+            }
+            if (/^CL[AÁ]USULA/i.test(limpa) || /^ACORDO/i.test(limpa) || /^INSTRUMENTO/i.test(limpa)) {
+                return `<div style="font-weight: bold; font-size: 12pt; margin-top: 16px; margin-bottom: 6px; font-family: Arial, sans-serif; color: #1e293b;">${limpa}</div>`;
+            }
+            if (limpa.startsWith('•')) {
+                return `<div style="font-family: Arial, sans-serif; font-size: 10pt; color: #334155; margin: 2px 0 2px 10px;">${limpa}</div>`;
+            }
+            if (!limpa) return '<div style="height: 10px;"></div>';
+            return `<p style="text-indent: 1.25cm; margin: 0 0 8px 0; font-size: 11.5pt;">${limpa}</p>`;
+        }).join('');
+
+        box.innerHTML = linhasHtml + (assinaturasHtml || '');
+        return box;
+    }
+
+    // ==========================================
     // PONTE: ENVIAR CONTRATO GERADO DIRETO PARA O VISUALIZADOR
     // ==========================================
     $('#btnTransferirParaAssinador').click(async function() {
@@ -2969,42 +3014,37 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
             didOpen: () => Swal.showLoading()
         });
 
-        // Gerar o PDF temporário do contrato e abrir na tela
-        const container = document.createElement('div');
-        container.style.padding = '25px';
-        container.style.fontFamily = '"Times New Roman", serif';
-        container.style.fontSize = '12pt';
-        container.style.lineHeight = '1.7';
-        container.style.color = '#111';
-        container.style.textAlign = 'justify';
-
-        let linhasHtml = texto.split('\n').map(l => {
-            const limpa = l.trim();
-            if (limpa.length > 5 && limpa === limpa.toUpperCase() && !limpa.startsWith('§') && !/^\d/.test(limpa)) {
-                return `<div style="text-align: center; font-weight: bold; font-size: 13pt; margin: 18px 0 12px;">${limpa}</div>`;
-            }
-            if (/^CL[AÁ]USULA/i.test(limpa)) {
-                return `<div style="font-weight: bold; margin-top: 14px; margin-bottom: 4px;">${limpa}</div>`;
-            }
-            if (!limpa) return '<div style="height: 10px;"></div>';
-            return `<p style="text-indent: 1.5cm; margin: 0 0 8px 0;">${limpa}</p>`;
-        }).join('');
-
-        container.innerHTML = linhasHtml;
+        const box = montarElementoParaPdf(texto, '');
+        document.body.appendChild(box);
 
         const opt = {
-            margin: [20, 20, 20, 20],
+            margin: [15, 15, 15, 15],
             filename: docNome,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                letterRendering: true,
+                backgroundColor: '#ffffff',
+                scrollY: 0,
+                scrollX: 0
+            },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        const pdfBlob = await html2pdf().set(opt).from(container).outputPdf('blob');
-        const arrayBuffer = await pdfBlob.arrayBuffer();
+        try {
+            const pdfBlob = await html2pdf().set(opt).from(box).outputPdf('blob');
+            const arrayBuffer = await pdfBlob.arrayBuffer();
 
-        navegarPara('assinar');
-        await carregarERenderizarPdf(arrayBuffer, docNome);
+            navegarPara('assinar');
+            await carregarERenderizarPdf(arrayBuffer, docNome);
+        } catch (err) {
+            console.error('Erro na transferência:', err);
+        } finally {
+            if (box.parentNode) {
+                box.parentNode.removeChild(box);
+            }
+        }
     });
 
     // ==========================================
@@ -3989,37 +4029,60 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
             </div>
         `;
 
-        const container = document.createElement('div');
-        container.style.padding = '20px 25px';
-        container.style.fontFamily = '"Times New Roman", serif';
-        container.style.fontSize = '12pt';
-        container.style.lineHeight = '1.7';
-        container.style.color = '#111';
-        container.style.textAlign = 'justify';
+        Swal.fire({
+            title: 'Gerando PDF Jurídico...',
+            text: 'Renderizando texto e assinaturas...',
+            background: '#0f172a',
+            color: '#fff',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
 
-        let linhasHtml = texto.split('\n').map(l => {
-            const limpa = l.trim();
-            if (limpa.length > 5 && limpa === limpa.toUpperCase() && !limpa.startsWith('§') && !/^\d/.test(limpa)) {
-                return `<div style="text-align: center; font-weight: bold; font-size: 13pt; margin: 18px 0 12px;">${limpa}</div>`;
-            }
-            if (/^CL[AÁ]USULA/i.test(limpa)) {
-                return `<div style="font-weight: bold; margin-top: 14px; margin-bottom: 4px;">${limpa}</div>`;
-            }
-            if (!limpa) return '<div style="height: 10px;"></div>';
-            return `<p style="text-indent: 1.5cm; margin: 0 0 8px 0;">${limpa}</p>`;
-        }).join('');
+        const box = montarElementoParaPdf(texto, assinaturasHtml);
+        document.body.appendChild(box);
 
-        container.innerHTML = linhasHtml + assinaturasHtml;
-
+        const filename = `contrato_${nomeContratante.replace(/\s+/g, '_').toLowerCase()}.pdf`;
         const opt = {
-            margin: [20, 20, 20, 20],
-            filename: `contrato_${nomeContratante.replace(/\s+/g, '_').toLowerCase()}.pdf`,
+            margin: [15, 15, 15, 15],
+            filename: filename,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                letterRendering: true,
+                backgroundColor: '#ffffff',
+                scrollY: 0,
+                scrollX: 0
+            },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        html2pdf().set(opt).from(container).save();
+        try {
+            await html2pdf().set(opt).from(box).save();
+            Swal.fire({
+                icon: 'success',
+                title: '📄 PDF Baixado com Sucesso!',
+                text: `${filename} foi exportado com todas as cláusulas e assinaturas!`,
+                background: '#0f172a',
+                color: '#fff',
+                confirmButtonColor: '#06b6d4',
+                timer: 2500
+            });
+        } catch (err) {
+            console.error('Erro ao gerar PDF:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro ao gerar PDF',
+                text: 'Houve uma falha ao gerar o arquivo PDF.',
+                background: '#0f172a',
+                color: '#fff',
+                confirmButtonColor: '#6366f1'
+            });
+        } finally {
+            if (box.parentNode) {
+                box.parentNode.removeChild(box);
+            }
+        }
     });
 
     // ==========================================
