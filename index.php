@@ -3994,7 +3994,7 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
     // ==========================================
     // EXPORTAÇÃO DE PDF JURÍDICO ABNT (DO GERADOR)
     // ==========================================
-    $('#btnExportarPdfJuridico').click(function() {
+    $('#btnExportarPdfJuridico').click(async function() {
         const texto = $('#contratoGeradoTexto').val();
         if (!texto) return;
 
