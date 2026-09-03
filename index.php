@@ -42,7 +42,7 @@ if (strpos($client_ip, ',') !== false) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Contratos com IA</title>
     <link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -2997,7 +2997,18 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
                 useCORS: true,
                 backgroundColor: '#ffffff',
                 logging: false,
-                letterRendering: true
+                letterRendering: true,
+                onclone: function(clonedDoc) {
+                    const all = clonedDoc.querySelectorAll('*');
+                    for (let i = 0; i < all.length; i++) {
+                        const el = all[i];
+                        if (el.style) {
+                            if (el.style.color && el.style.color.includes('oklch')) el.style.color = '#0f172a';
+                            if (el.style.backgroundColor && el.style.backgroundColor.includes('oklch')) el.style.backgroundColor = '#ffffff';
+                            if (el.style.borderColor && el.style.borderColor.includes('oklch')) el.style.borderColor = '#cbd5e1';
+                        }
+                    }
+                }
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
@@ -4006,7 +4017,18 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
                 useCORS: true,
                 backgroundColor: '#ffffff',
                 logging: false,
-                letterRendering: true
+                letterRendering: true,
+                onclone: function(clonedDoc) {
+                    const all = clonedDoc.querySelectorAll('*');
+                    for (let i = 0; i < all.length; i++) {
+                        const el = all[i];
+                        if (el.style) {
+                            if (el.style.color && el.style.color.includes('oklch')) el.style.color = '#0f172a';
+                            if (el.style.backgroundColor && el.style.backgroundColor.includes('oklch')) el.style.backgroundColor = '#ffffff';
+                            if (el.style.borderColor && el.style.borderColor.includes('oklch')) el.style.borderColor = '#cbd5e1';
+                        }
+                    }
+                }
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
