@@ -3056,7 +3056,7 @@ ${$('#instrucoes_ia').val().trim()}
                         <div class="min-h-[80px] flex items-center justify-center">
                             ${assinaturasSalvas['contratante'] ? 
                                 `<div>
-                                    <img src="${assinaturasSalvas['contratante'].dataUrl}" class="h-16 mx-auto mb-1 object-contain drop-shadow" />
+                                    <img src="${assinaturasSalvas['contratante'].dataUrl}" class="h-14 max-w-full mx-auto mb-1 object-contain drop-shadow" />
                                     <div class="text-[10px] text-emerald-800 font-mono font-bold bg-emerald-100 py-1 px-3 rounded-lg border border-emerald-300 inline-block shadow-xs">
                                         <i class="fa-solid fa-shield-halved text-emerald-600"></i> Assinado digitalmente • ${assinaturasSalvas['contratante'].dataHora}<br>
                                         <span class="text-[9px] text-slate-500">Hash: ${assinaturasSalvas['contratante'].hash}</span>
@@ -3078,7 +3078,7 @@ ${$('#instrucoes_ia').val().trim()}
                         <div class="min-h-[80px] flex items-center justify-center">
                             ${assinaturasSalvas['contratado'] ? 
                                 `<div>
-                                    <img src="${assinaturasSalvas['contratado'].dataUrl}" class="h-16 mx-auto mb-1 object-contain drop-shadow" />
+                                    <img src="${assinaturasSalvas['contratado'].dataUrl}" class="h-14 max-w-full mx-auto mb-1 object-contain drop-shadow" />
                                     <div class="text-[10px] text-emerald-800 font-mono font-bold bg-emerald-100 py-1 px-3 rounded-lg border border-emerald-300 inline-block shadow-xs">
                                         <i class="fa-solid fa-shield-halved text-emerald-600"></i> Assinado digitalmente • ${assinaturasSalvas['contratado'].dataHora}<br>
                                         <span class="text-[9px] text-slate-500">Hash: ${assinaturasSalvas['contratado'].hash}</span>
@@ -3270,19 +3270,29 @@ ${$('#instrucoes_ia').val().trim()}
     $('#sig_nome_input').on('input', atualizarCaligrafiaPreview);
     $('#signatario_tipo').on('change', sincronizarNomeSignatario);
 
-    // Gerar imagem da caligrafia em alta resolução (PNG transparente)
+    // Gerar imagem da caligrafia em alta resolução (PNG transparente) com auto-escala inteligente
     function renderizarCaligrafiaEmPng(nome, fontName, corHex) {
         const canvas = document.createElement('canvas');
-        canvas.width = 800;
-        canvas.height = 200;
+        canvas.width = 1200;
+        canvas.height = 260;
         const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, 800, 200);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         
+        let fontSize = 76;
+        ctx.font = `italic ${fontSize}px "${fontName}", cursive`;
+        let textWidth = ctx.measureText(nome).width;
+        const maxAllowedWidth = canvas.width - 140; // 70px de margem lateral
+
+        if (textWidth > maxAllowedWidth) {
+            fontSize = Math.floor(fontSize * (maxAllowedWidth / textWidth));
+            if (fontSize < 24) fontSize = 24;
+            ctx.font = `italic ${fontSize}px "${fontName}", cursive`;
+        }
+
         ctx.fillStyle = corHex || '#1d4ed8';
-        ctx.font = `italic 68px "${fontName}", cursive`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(nome, 400, 100);
+        ctx.fillText(nome, canvas.width / 2, canvas.height / 2);
         
         return canvas.toDataURL('image/png');
     }
