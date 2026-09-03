@@ -37,6 +37,8 @@ if (strpos($client_ip, ',') !== false) {
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <!-- HTML2PDF para exportação de minutas criadas com IA -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- LZ-String para Links de Assinatura Autossuficientes com Retenção Zero -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1480,11 +1482,14 @@ if (strpos($client_ip, ',') !== false) {
 
                     <!-- Botões Rápidos no Topo para Acesso Imediato sem Rolar -->
                     <div class="flex flex-wrap items-center gap-2">
-                        <button type="button" onclick="abrirModalAssinaturaComTipo('contratante')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-extrabold shadow-lg shadow-purple-600/30 cursor-pointer flex items-center gap-1.5 hover:scale-105 transition-all">
-                            <i class="fa-solid fa-signature"></i> <span>Assinar Digitalmente</span>
+                        <button type="button" onclick="abrirModalAssinaturaComTipo('contratante')" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-extrabold shadow-lg shadow-purple-600/30 cursor-pointer flex items-center gap-1.5 hover:scale-105 transition-all">
+                            <i class="fa-solid fa-signature"></i> <span>Assinar</span>
                         </button>
-                        <button type="button" onclick="$('#btnExportarPdfJuridico').click()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-xs font-extrabold shadow-lg shadow-red-600/30 cursor-pointer flex items-center gap-1.5 hover:scale-105 transition-all">
-                            <i class="fa-solid fa-file-pdf"></i> <span>Baixar PDF Jurídico</span>
+                        <button type="button" onclick="copiarLinkAssinatura()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white text-xs font-extrabold shadow-lg shadow-cyan-600/30 cursor-pointer flex items-center gap-1.5 hover:scale-105 transition-all">
+                            <i class="fa-solid fa-link"></i> <span>Copiar Link</span>
+                        </button>
+                        <button type="button" onclick="$('#btnExportarPdfJuridico').click()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-xs font-extrabold shadow-lg shadow-red-600/30 cursor-pointer flex items-center gap-1.5 hover:scale-105 transition-all">
+                            <i class="fa-solid fa-file-pdf"></i> <span>Baixar PDF</span>
                         </button>
                     </div>
                 </div>
@@ -1501,6 +1506,9 @@ if (strpos($client_ip, ',') !== false) {
                 <div id="acoesResultado" class="hidden mt-10 mb-20 p-6 bg-white rounded-3xl border-2 border-indigo-100 shadow-xl flex flex-wrap gap-3 items-center justify-center">
                     <button type="button" id="btnAbrirAssinaturaDigital" class="action-btn bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg shadow-purple-600/30 cursor-pointer">
                         <i class="fa-solid fa-signature"></i> Assinar Digitalmente
+                    </button>
+                    <button type="button" id="btnCopiarLinkAssinatura" class="action-btn bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white shadow-lg shadow-cyan-600/30 cursor-pointer">
+                        <i class="fa-solid fa-link"></i> Copiar Link de Assinatura
                     </button>
                     <button type="button" id="btnExportarPdfJuridico" class="action-btn bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-lg shadow-red-600/30 cursor-pointer">
                         <i class="fa-solid fa-file-pdf"></i> Baixar PDF Jurídico
@@ -2973,20 +2981,6 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
             }
         });
 
-        function enviarWhatsApp(numero, tipo) {
-            let numLimpo = (numero || "").replace(/\D/g, '');
-            if (numLimpo.length < 10) { alert(`Número de WhatsApp inválido para ${tipo}.`); return; }
-            if (numLimpo.length <= 11 && !numLimpo.startsWith('55')) numLimpo = '55' + numLimpo;
-            const tipoDoc = $('#tipo_contrato').val() === 'Outro' ? $('#tipo_contrato_outro').val() : $('#tipo_contrato').val();
-            const tipoDocFmt = getTipoDocumento($('#tipo_contrato').val());
-            const nomeTipo = tipoDocFmt === 'procuracao' ? 'procuração' : tipoDocFmt === 'declaracao' ? 'declaração' : 'contrato';
-            const msg = `Olá! Segue o rascunho de ${nomeTipo}: ${tipoDoc} para sua análise.`;
-            window.open(`https://wa.me/${numLimpo}?text=${encodeURIComponent(msg)}`, '_blank');
-        }
-
-        $('#btnEnviarWhatsAppContratante').click(() => enviarWhatsApp($('#contratante_telefone_whatsapp').val(), 'Contratante'));
-        $('#btnEnviarWhatsAppContratado').click(() => enviarWhatsApp($('#contratado_telefone_whatsapp').val(), 'Contratado'));
-
 
     // ==========================================
     // SISTEMA DE NAVEGAÇÃO DE VIEWS (SPA 4USIGN PRO)
@@ -4221,6 +4215,26 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
             color: '#fff',
             confirmButtonColor: '#6366f1'
         });
+
+        if (assinaturasSalvas['contratante'] && assinaturasSalvas['contratado']) {
+            setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: '🎉 Documento 100% Assinado pelas Partes!',
+                    html: `<p class="text-xs text-slate-300 leading-relaxed">Todas as partes assinaram eletronicamente com certificado de autenticidade, IP e Hash SHA-256.<br><br><b>Você já pode Baixar o PDF Jurídico oficial selado ou compartilhar o comprovante final!</b></p>`,
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fa-solid fa-file-pdf"></i> Baixar PDF Jurídico',
+                    cancelButtonText: 'Fechar',
+                    background: '#0f172a',
+                    color: '#fff',
+                    confirmButtonColor: '#ef4444'
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        $('#btnExportarPdfJuridico').click();
+                    }
+                });
+            }, 1800);
+        }
     }
 
     // Exposição no Window e Binding jQuery para 100% de Compatibilidade
@@ -4370,6 +4384,194 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW error:', err));
         });
+    }
+
+    // =========================================================================
+    // SISTEMA DE LINK DE ASSINATURA COMPARTILHADO (RETENÇÃO ZERO / CLIENT-SIDE)
+    // =========================================================================
+    function gerarLinkCompartilhado() {
+        const texto = $('#contratoGeradoTexto').val();
+        if (!texto) return null;
+
+        const payload = {
+            t: texto,
+            c1: $('#contratante_nome').val() || '',
+            d1: $('#contratante_doc').val() || '',
+            c2: $('#contratado_nome').val() || '',
+            d2: $('#contratado_doc').val() || '',
+            cidade: $('#cidade_foro').val() || '',
+            tipo: $('#tipo_contrato').val() || 'Contrato',
+            sigs: assinaturasSalvas
+        };
+
+        const jsonStr = JSON.stringify(payload);
+        const compressed = LZString.compressToEncodedURIComponent(jsonStr);
+        const baseUrl = window.location.origin + window.location.pathname;
+        return `${baseUrl}#doc=${compressed}`;
+    }
+
+    function copiarLinkAssinatura() {
+        const link = gerarLinkCompartilhado();
+        if (!link) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Nenhum contrato gerado',
+                text: 'Gere o contrato antes de copiar o link de assinatura.',
+                background: '#0f172a',
+                color: '#fff',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(link).then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: '🔗 Link Copiado com Sucesso!',
+                    html: `<p class="text-xs text-slate-300 leading-relaxed">O link exclusivo do contrato foi copiado!<br><br>Você pode colar no <b>WhatsApp, E-mail ou Telegram</b>. A outra parte abrirá diretamente no campo dela para assinar com <b>Retenção Zero</b> (nenhum arquivo fica salvo no servidor).</p>`,
+                    background: '#0f172a',
+                    color: '#fff',
+                    confirmButtonColor: '#06b6d4',
+                    timer: 5000
+                });
+            }).catch(() => {
+                exibirModalLinkFallback(link);
+            });
+        } else {
+            exibirModalLinkFallback(link);
+        }
+    }
+
+    function exibirModalLinkFallback(link) {
+        Swal.fire({
+            title: '🔗 Link de Assinatura',
+            html: `<p class="text-xs text-slate-300 mb-3">Copie o link abaixo para enviar para a outra parte assinar:</p>
+                   <textarea class="w-full p-2.5 text-xs bg-slate-800 text-white rounded-xl border border-slate-700 h-28 select-all font-mono" readonly>${link}</textarea>`,
+            background: '#0f172a',
+            color: '#fff',
+            confirmButtonColor: '#06b6d4'
+        });
+    }
+
+    function enviarWhatsApp(numero, tipo) {
+        let numLimpo = (numero || "").replace(/\D/g, '');
+        const link = gerarLinkCompartilhado();
+
+        if (!link) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Nenhum contrato gerado',
+                text: 'Gere o contrato antes de enviar por WhatsApp.',
+                background: '#0f172a',
+                color: '#fff',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+
+        if (numLimpo.length < 10) {
+            Swal.fire({
+                title: '📲 Enviar por WhatsApp',
+                html: `<p class="text-xs text-slate-300 mb-3">O telefone de <b>${tipo}</b> não foi preenchido ou está incompleto. Digite o número com DDD para abrir o WhatsApp:</p>
+                       <input id="swalInputWapp" class="input-modern text-sm" placeholder="Ex: (11) 99999-8888" />`,
+                showCancelButton: true,
+                confirmButtonText: 'Abrir WhatsApp',
+                cancelButtonText: 'Cancelar',
+                background: '#0f172a',
+                color: '#fff',
+                confirmButtonColor: '#22c55e',
+                preConfirm: () => {
+                    const val = document.getElementById('swalInputWapp').value.replace(/\D/g, '');
+                    if (val.length < 10) {
+                        Swal.showValidationMessage('Digite um número com DDD válido');
+                        return false;
+                    }
+                    return val;
+                }
+            }).then((res) => {
+                if (res.isConfirmed && res.value) {
+                    dispararMensagemWhatsApp(res.value, tipo, link);
+                }
+            });
+            return;
+        }
+
+        dispararMensagemWhatsApp(numLimpo, tipo, link);
+    }
+
+    function dispararMensagemWhatsApp(numLimpo, tipo, link) {
+        if (numLimpo.length <= 11 && !numLimpo.startsWith('55')) numLimpo = '55' + numLimpo;
+        const tipoDoc = $('#tipo_contrato').val() === 'Outro' ? $('#tipo_contrato_outro').val() : $('#tipo_contrato').val();
+        const nomeParte = tipo === 'Contratante' ? ($('#contratante_nome').val() || 'Contratante') : ($('#contratado_nome').val() || 'Contratado');
+        const euAssinei = assinaturasSalvas['contratante'] ? ' (já conta com a minha assinatura digital)' : '';
+
+        let msg = `Olá, *${nomeParte}*!\n\n`;
+        msg += `Segue o link oficial para visualização e assinatura digital do *${tipoDoc}*${euAssinei} na plataforma 4USign Pro:\n\n`;
+        msg += `👉 *Clique para assinar no seu campo exclusivo:*\n${link}\n\n`;
+        msg += `🔒 _Assinatura eletrônica com plena validade jurídica (Lei nº 14.063/2020 e MP nº 2.200-2/2001) e Retenção Zero de dados._`;
+
+        window.open(`https://wa.me/${numLimpo}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    $('#btnEnviarWhatsAppContratante').click(() => enviarWhatsApp($('#contratante_telefone_whatsapp').val(), 'Contratante'));
+    $('#btnEnviarWhatsAppContratado').click(() => enviarWhatsApp($('#contratado_telefone_whatsapp').val(), 'Contratado'));
+    $('#btnCopiarLinkAssinatura').click(copiarLinkAssinatura);
+    window.copiarLinkAssinatura = copiarLinkAssinatura;
+    window.gerarLinkCompartilhado = gerarLinkCompartilhado;
+
+    // Leitura de Link Seguro de Assinatura (Retenção Zero / Payload na URL)
+    if (window.location.hash.startsWith('#doc=')) {
+        try {
+            const raw = window.location.hash.substring(5);
+            const decompressed = LZString.decompressFromEncodedURIComponent(raw);
+            if (decompressed) {
+                const data = JSON.parse(decompressed);
+                if (data.t) {
+                    $('#contratoGeradoTexto').val(data.t);
+                    if (data.c1) $('#contratante_nome').val(data.c1);
+                    if (data.d1) $('#contratante_doc').val(data.d1);
+                    if (data.c2) $('#contratado_nome').val(data.c2);
+                    if (data.d2) $('#contratado_doc').val(data.d2);
+                    if (data.cidade) $('#cidade_foro').val(data.cidade);
+                    if (data.tipo) {
+                        $('#tipo_contrato').val(data.tipo);
+                        $('#tipo_contrato').trigger('change');
+                    }
+                    if (data.sigs) {
+                        assinaturasSalvas = data.sigs;
+                    }
+
+                    navegarPara('gerador');
+                    $('#resultadoContainer').removeClass('hidden');
+                    $('#contratoPreviewVisual, #acoesResultado').removeClass('hidden');
+                    $('#contratoGeradoTexto').addClass('hidden');
+                    $('#tabModoVisual').removeClass('bg-slate-800 text-slate-300').addClass('bg-indigo-600 text-white shadow-md');
+                    $('#tabModoTexto').removeClass('bg-indigo-600 text-white shadow-md').addClass('bg-slate-800 text-slate-300');
+                    atualizarVisualizadorDocumento();
+
+                    setTimeout(() => {
+                        if ($('#blocoAssinaturasVisual').length) {
+                            $('html, body').animate({ scrollTop: $('#blocoAssinaturasVisual').offset().top - 150 }, 600);
+                        }
+                    }, 600);
+
+                    const nomeC1 = data.c1 || 'Contratante';
+                    const jaAssinado = data.sigs && data.sigs['contratante'] ? `<br><br><span class="text-emerald-400 font-bold">✓ Já assinado digitalmente por ${nomeC1}</span>` : '';
+
+                    Swal.fire({
+                        icon: 'info',
+                        title: '📄 Documento Pronto para Assinatura',
+                        html: `<p class="text-xs text-slate-300 leading-relaxed">Este contrato foi carregado com segurança e <b>Retenção Zero</b> (nenhum dado salvo no servidor).${jaAssinado}<br><br>Revise as cláusulas e clique no botão de assinatura indicado para você.</p>`,
+                        background: '#0f172a',
+                        color: '#fff',
+                        confirmButtonColor: '#06b6d4'
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('Erro ao ler link de assinatura:', err);
+        }
     }
 
     // Carregar dados ao iniciar
