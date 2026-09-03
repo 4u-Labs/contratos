@@ -4,6 +4,11 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 $v = time();
+
+$client_ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+if (strpos($client_ip, ',') !== false) {
+    $client_ip = trim(explode(',', $client_ip)[0]);
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -3057,9 +3062,14 @@ ${$('#instrucoes_ia').val().trim()}
                             ${assinaturasSalvas['contratante'] ? 
                                 `<div>
                                     <img src="${assinaturasSalvas['contratante'].dataUrl}" class="h-14 max-w-full mx-auto mb-1 object-contain drop-shadow" />
-                                    <div class="text-[10px] text-emerald-800 font-mono font-bold bg-emerald-100 py-1 px-3 rounded-lg border border-emerald-300 inline-block shadow-xs">
-                                        <i class="fa-solid fa-shield-halved text-emerald-600"></i> Assinado digitalmente • ${assinaturasSalvas['contratante'].dataHora}<br>
-                                        <span class="text-[9px] text-slate-500">Hash: ${assinaturasSalvas['contratante'].hash}</span>
+                                    <div class="text-[10px] text-emerald-900 font-mono font-bold bg-emerald-100/90 py-1.5 px-3 rounded-xl border border-emerald-300 inline-block shadow-xs">
+                                        <div class="flex items-center justify-center gap-1.5 mb-0.5 text-emerald-800">
+                                            <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+                                            <span>Assinado digitalmente • ${assinaturasSalvas['contratante'].dataHora}</span>
+                                        </div>
+                                        <div class="text-[9px] text-slate-600">
+                                            <span class="text-indigo-700 font-bold">IP: ${assinaturasSalvas['contratante'].ip}</span> • Hash: ${assinaturasSalvas['contratante'].hash}
+                                        </div>
                                     </div>
                                 </div>` :
                                 `<button type="button" onclick="abrirModalAssinaturaComTipo('contratante')" class="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-2 mx-auto">
@@ -3079,9 +3089,14 @@ ${$('#instrucoes_ia').val().trim()}
                             ${assinaturasSalvas['contratado'] ? 
                                 `<div>
                                     <img src="${assinaturasSalvas['contratado'].dataUrl}" class="h-14 max-w-full mx-auto mb-1 object-contain drop-shadow" />
-                                    <div class="text-[10px] text-emerald-800 font-mono font-bold bg-emerald-100 py-1 px-3 rounded-lg border border-emerald-300 inline-block shadow-xs">
-                                        <i class="fa-solid fa-shield-halved text-emerald-600"></i> Assinado digitalmente • ${assinaturasSalvas['contratado'].dataHora}<br>
-                                        <span class="text-[9px] text-slate-500">Hash: ${assinaturasSalvas['contratado'].hash}</span>
+                                    <div class="text-[10px] text-emerald-900 font-mono font-bold bg-emerald-100/90 py-1.5 px-3 rounded-xl border border-emerald-300 inline-block shadow-xs">
+                                        <div class="flex items-center justify-center gap-1.5 mb-0.5 text-emerald-800">
+                                            <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+                                            <span>Assinado digitalmente • ${assinaturasSalvas['contratado'].dataHora}</span>
+                                        </div>
+                                        <div class="text-[9px] text-slate-600">
+                                            <span class="text-indigo-700 font-bold">IP: ${assinaturasSalvas['contratado'].ip}</span> • Hash: ${assinaturasSalvas['contratado'].hash}
+                                        </div>
                                     </div>
                                 </div>` :
                                 `<button type="button" onclick="abrirModalAssinaturaComTipo('contratado')" class="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-2 mx-auto">
@@ -3135,6 +3150,14 @@ ${$('#instrucoes_ia').val().trim()}
     let sigCtx = null;
     let isDrawing = false;
     let assinaturasSalvas = {};
+
+    let userClientIp = "<?php echo htmlspecialchars($client_ip); ?>";
+    try {
+        fetch('https://api.ipify.org?format=json')
+            .then(r => r.json())
+            .then(d => { if (d && d.ip) userClientIp = d.ip; })
+            .catch(() => {});
+    } catch(e) {}
 
     let sigModoAtual = 'caligrafia'; // 'caligrafia' ou 'desenho'
     let sigFonteAtual = 'Dancing Script';
@@ -3316,6 +3339,7 @@ ${$('#instrucoes_ia').val().trim()}
             dataUrl: dataUrl,
             hash: hash,
             dataHora: dataHora,
+            ip: userClientIp || 'Registrado via Web',
             modo: sigModoAtual
         };
 
@@ -3335,7 +3359,7 @@ ${$('#instrucoes_ia').val().trim()}
         Swal.fire({
             icon: 'success',
             title: '🎉 Assinatura Estampada!',
-            html: `<p class="text-sm text-slate-300">A assinatura do <b>${labelTipo}</b> foi inserida com caligrafia personalizada, selo criptográfico SHA-256 e horário oficial!<br><br>👉 Clique em <b>"Baixar PDF Jurídico"</b> para ver o contrato oficial assinado!</p>`,
+            html: `<p class="text-sm text-slate-300">A assinatura do <b>${labelTipo}</b> foi inserida com caligrafia personalizada, <b>IP (${userClientIp})</b>, selo criptográfico SHA-256 e horário oficial!<br><br>👉 Clique em <b>"Baixar PDF Jurídico"</b> para ver o contrato oficial assinado!</p>`,
             background: '#0f172a',
             color: '#fff',
             confirmButtonColor: '#6366f1'
@@ -3371,12 +3395,12 @@ ${$('#instrucoes_ia').val().trim()}
             <div style="margin-top: 40px; page-break-inside: avoid;">
                 <div style="display: flex; justify-content: space-between; gap: 40px; margin-top: 50px;">
                     <div style="flex: 1; text-align: center;">
-                        ${assinaturasSalvas['contratante'] ? `<img src="${assinaturasSalvas['contratante'].dataUrl}" style="height: 55px; margin: 0 auto 5px; display: block;" /><div style="font-size: 8pt; color: #4338ca;">🛡️ Assinado digitalmente em ${assinaturasSalvas['contratante'].dataHora}<br>Hash: ${assinaturasSalvas['contratante'].hash}</div>` : ''}
+                        ${assinaturasSalvas['contratante'] ? `<img src="${assinaturasSalvas['contratante'].dataUrl}" style="height: 50px; max-width: 90%; margin: 0 auto 5px; display: block; object-fit: contain;" /><div style="font-size: 8pt; color: #4338ca; line-height: 1.4;">🛡️ Assinado digitalmente em ${assinaturasSalvas['contratante'].dataHora}<br><b>IP:</b> ${assinaturasSalvas['contratante'].ip} • <b>Hash SHA-256:</b> ${assinaturasSalvas['contratante'].hash}</div>` : ''}
                         <div style="border-top: 1px solid #000; padding-top: 5px; font-size: 10pt; font-weight: bold;">${nomeContratante}</div>
                         <div style="font-size: 9pt; color: #444;">CONTRATANTE ${docContratante ? '• ' + docContratante : ''}</div>
                     </div>
                     <div style="flex: 1; text-align: center;">
-                        ${assinaturasSalvas['contratado'] ? `<img src="${assinaturasSalvas['contratado'].dataUrl}" style="height: 55px; margin: 0 auto 5px; display: block;" /><div style="font-size: 8pt; color: #4338ca;">🛡️ Assinado digitalmente em ${assinaturasSalvas['contratado'].dataHora}<br>Hash: ${assinaturasSalvas['contratado'].hash}</div>` : ''}
+                        ${assinaturasSalvas['contratado'] ? `<img src="${assinaturasSalvas['contratado'].dataUrl}" style="height: 50px; max-width: 90%; margin: 0 auto 5px; display: block; object-fit: contain;" /><div style="font-size: 8pt; color: #4338ca; line-height: 1.4;">🛡️ Assinado digitalmente em ${assinaturasSalvas['contratado'].dataHora}<br><b>IP:</b> ${assinaturasSalvas['contratado'].ip} • <b>Hash SHA-256:</b> ${assinaturasSalvas['contratado'].hash}</div>` : ''}
                         <div style="border-top: 1px solid #000; padding-top: 5px; font-size: 10pt; font-weight: bold;">${nomeContratado}</div>
                         <div style="font-size: 9pt; color: #444;">CONTRATADO ${docContratado ? '• ' + docContratado : ''}</div>
                     </div>
