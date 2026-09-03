@@ -1480,14 +1480,11 @@ if (strpos($client_ip, ',') !== false) {
 
                     <!-- Botões Rápidos no Topo para Acesso Imediato sem Rolar -->
                     <div class="flex flex-wrap items-center gap-2">
-                        <button type="button" onclick="$('#btnExportarPdfJuridico').click()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-xs font-extrabold shadow-lg shadow-red-600/30 cursor-pointer flex items-center gap-1.5 hover:scale-105 transition-all">
-                            <i class="fa-solid fa-file-pdf"></i> <span>Baixar PDF</span>
-                        </button>
-                        <button type="button" onclick="$('#btnTransferirParaAssinador').click()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white text-xs font-extrabold shadow-lg shadow-cyan-600/30 cursor-pointer flex items-center gap-1.5 hover:scale-105 transition-all">
-                            <i class="fa-solid fa-paper-plane"></i> <span>Assinador PDF</span>
-                        </button>
                         <button type="button" onclick="abrirModalAssinaturaComTipo('contratante')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-extrabold shadow-lg shadow-purple-600/30 cursor-pointer flex items-center gap-1.5 hover:scale-105 transition-all">
-                            <i class="fa-solid fa-signature"></i> <span>Assinar</span>
+                            <i class="fa-solid fa-signature"></i> <span>Assinar Digitalmente</span>
+                        </button>
+                        <button type="button" onclick="$('#btnExportarPdfJuridico').click()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-xs font-extrabold shadow-lg shadow-red-600/30 cursor-pointer flex items-center gap-1.5 hover:scale-105 transition-all">
+                            <i class="fa-solid fa-file-pdf"></i> <span>Baixar PDF Jurídico</span>
                         </button>
                     </div>
                 </div>
@@ -1502,14 +1499,11 @@ if (strpos($client_ip, ',') !== false) {
 
                 <!-- Ações -->
                 <div id="acoesResultado" class="hidden mt-10 mb-20 p-6 bg-white rounded-3xl border-2 border-indigo-100 shadow-xl flex flex-wrap gap-3 items-center justify-center">
-                    <button type="button" id="btnExportarPdfJuridico" class="action-btn bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-lg shadow-red-600/30 cursor-pointer">
-                        <i class="fa-solid fa-file-pdf"></i> Baixar PDF Jurídico
-                    </button>
-                    <button type="button" id="btnTransferirParaAssinador" class="action-btn bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white shadow-lg shadow-cyan-600/30 cursor-pointer">
-                        <i class="fa-solid fa-paper-plane"></i> Abrir no Assinador de PDF
-                    </button>
                     <button type="button" id="btnAbrirAssinaturaDigital" class="action-btn bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg shadow-purple-600/30 cursor-pointer">
                         <i class="fa-solid fa-signature"></i> Assinar Digitalmente
+                    </button>
+                    <button type="button" id="btnExportarPdfJuridico" class="action-btn bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-lg shadow-red-600/30 cursor-pointer">
+                        <i class="fa-solid fa-file-pdf"></i> Baixar PDF Jurídico
                     </button>
                     <button id="btnCopiarConteudoContrato" class="action-btn bg-slate-100 hover:bg-slate-200 text-slate-700">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
