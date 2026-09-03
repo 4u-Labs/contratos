@@ -1245,7 +1245,69 @@ $v = time();
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 py-10 mt-16">
+    
+    <!-- Modal de Assinatura Digital na Tela -->
+    <div id="modalAssinatura" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl border border-slate-100">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-file-signature"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Assinatura Eletrônica na Tela</h3>
+                        <p class="text-xs text-slate-500">Desenhe a assinatura com o dedo ou mouse</p>
+                    </div>
+                </div>
+                <button onclick="fecharModalAssinatura()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="mb-4">
+                <label class="label-modern">Quem está assinando?</label>
+                <select id="signatario_tipo" class="input-modern py-2 text-sm">
+                    <option value="contratante">1. Contratante</option>
+                    <option value="contratado">2. Contratado</option>
+                    <option value="testemunha1">3. Testemunha 1</option>
+                    <option value="testemunha2">4. Testemunha 2</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <canvas id="signaturePad" width="440" height="180" class="signature-canvas w-full"></canvas>
+            </div>
+
+            <div class="flex items-center justify-between gap-3">
+                <button type="button" onclick="limparAssinatura()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold">
+                    <i class="fa-solid fa-eraser"></i> Limpar
+                </button>
+                <button type="button" onclick="aplicarAssinaturaNoContrato()" class="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-lg shadow-purple-600/30">
+                    <i class="fa-solid fa-check"></i> Estampar no Contrato
+                </button>
+            </div>
+        </div>
+
+    <!-- Footer Padrão 4U.IA.BR -->
+    <footer class="bg-slate-900 text-slate-400 py-10 mt-16 border-t border-white/10">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex items-center justify-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center cursor-pointer hover:bg-slate-700 transition-all" onclick="handleLogoClicks()">
+                    <i class="fa-solid fa-file-contract text-indigo-400"></i>
+                </div>
+                <span class="font-semibold text-white cursor-pointer" onclick="handleLogoClicks()">Gerador de Contratos com IA — 4U.IA.BR</span>
+            </div>
+            <div class="flex items-center justify-center gap-4 text-xs font-semibold text-slate-400 mb-4">
+                <a href="privacidade.php" class="hover:text-indigo-400 transition-all">Privacidade</a>
+                <span>•</span>
+                <a href="termos.php" class="hover:text-indigo-400 transition-all">Termos de Uso</a>
+                <span>•</span>
+                <a href="suporte.php" class="hover:text-indigo-400 transition-all">Suporte & FAQ</a>
+                <span>•</span>
+                <a href="https://github.com/4u-Labs/contratos" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-all">GitHub</a>
+            </div>
+            <p class="text-xs text-slate-500">&copy; <span id="year"><?php echo date('Y'); ?></span> 4U.IA.BR — Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
         <div class="container mx-auto px-4 text-center">
             <div class="flex items-center justify-center gap-3 mb-4">
                 <div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center cursor-pointer hover:bg-slate-700 transition-all" onclick="handleLogoClicks()">
