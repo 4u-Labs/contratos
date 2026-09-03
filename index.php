@@ -1204,7 +1204,13 @@ $v = time();
                 <textarea id="contratoGeradoTexto" class="hidden input-modern font-mono text-sm h-[500px]" placeholder="O contrato gerado aparecerá aqui..."></textarea>
 
                 <!-- Ações -->
-                <div id="acoesResultado" class="hidden mt-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                <div id="acoesResultado" class="hidden mt-8 flex flex-wrap gap-3 items-center justify-center">
+                    <button type="button" id="btnAbrirAssinaturaDigital" class="action-btn bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg shadow-purple-600/30">
+                        <i class="fa-solid fa-signature"></i> Assinar Digitalmente
+                    </button>
+                    <button type="button" id="btnExportarPdfJuridico" class="action-btn bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-lg shadow-red-600/30">
+                        <i class="fa-solid fa-file-pdf"></i> Baixar PDF Jurídico
+                    </button>
                     <button id="btnCopiarConteudoContrato" class="action-btn bg-slate-100 hover:bg-slate-200 text-slate-700">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                         Copiar
