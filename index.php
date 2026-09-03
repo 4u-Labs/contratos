@@ -13,20 +13,24 @@ if (strpos($client_ip, ',') !== false) {
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <!-- PWA Meta Tags & Fontes Caligráficas -->
+    <!-- 4USign Pro Meta Tags & Assets -->
+    <title>4USign Pro — Contratos Inteligentes & Assinatura Digital</title>
     <link rel="manifest" href="manifest.json?v=<?php echo $v; ?>">
     <meta name="theme-color" content="#0f172a">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=<?php echo $v; ?>">
+    <link rel="apple-touch-icon" href="icon-192.png?v=<?php echo $v; ?>">
+    
     <!-- Fontes Manuscritas para Assinatura Digital -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Sacramento&family=Allura&display=swap" rel="stylesheet">
-    <!-- HTML2PDF para exportação jurídica perfeita -->
+    
+    <!-- PDF Engines (html2pdf + pdf-lib para certificação forense) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -402,7 +406,7 @@ if (strpos($client_ip, ',') !== false) {
         .footer-a { transition: all 0.2s; text-decoration: none; color: inherit; }
         .footer-a:hover { color: #6366f1; opacity: 1; }
     
-        /* ============ PWA, CALIGRAFIA & SIGNATURE PAD ============ */
+        /* ============ 4USIGN PRO STYLES ============ */
         .pwa-install-btn {
             display: inline-flex;
             align-items: center;
@@ -438,25 +442,83 @@ if (strpos($client_ip, ',') !== false) {
         .font-caveat { font-family: 'Caveat', cursive; }
         .font-allura { font-family: 'Allura', cursive; }
 
+        /* Hub Master Cards */
+        .hub-card {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 28px;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .hub-card:hover {
+            transform: translateY(-8px);
+            border-color: #818cf8;
+            box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.25);
+        }
+        .hub-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #6366f1, #a855f7, #06b6d4);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .hub-card:hover::before { opacity: 1; }
+
+        .dropzone-box {
+            border: 2px dashed #818cf8;
+            border-radius: 20px;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .dropzone-box:hover, .dropzone-box.dragover {
+            border-color: #6366f1;
+            background: #eef2ff;
+        }
+
     </style>
 </head>
 <body class="min-h-screen">
     <!-- Header com gradiente animado -->
     <header class="animated-bg text-white py-16 relative overflow-hidden">
-        <!-- Top Nav Bar -->
-        <div class="absolute top-0 left-0 right-0 z-20 py-4 px-6 flex justify-between items-center max-w-7xl mx-auto">
-            <div class="flex items-center gap-2">
-                <span id="logoMark" class="font-bold text-lg tracking-wider text-white flex items-center gap-2 cursor-pointer" onclick="handleLogoClicks()"><i class="fa-solid fa-file-contract"></i> 4U.IA.BR</span>
+        <!-- Top Nav Bar 4USign Pro -->
+        <div class="absolute top-0 left-0 right-0 z-20 py-3.5 px-4 sm:px-6 flex justify-between items-center max-w-7xl mx-auto">
+            <div class="flex items-center gap-3">
+                <a href="#hub" onclick="navegarPara('hub')" class="flex items-center gap-2.5 text-white no-underline group">
+                    <img src="logo.png?v=<?php echo $v; ?>" alt="4USign Pro" class="w-9 h-9 rounded-xl shadow-lg border border-white/20 transition-transform group-hover:scale-105" />
+                    <span class="font-black text-xl tracking-tight text-white flex items-center gap-1.5">
+                        4USign <span class="text-cyan-400 font-extrabold text-[11px] px-2 py-0.5 rounded-md bg-cyan-950/70 border border-cyan-500/40 uppercase tracking-wider">Pro</span>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Navegação Rápida entre Módulos -->
+            <div class="hidden md:flex items-center gap-1 bg-slate-900/60 backdrop-blur-md p-1 rounded-2xl border border-white/10 text-xs font-bold">
+                <button type="button" onclick="navegarPara('hub')" id="navBtnHub" class="nav-tab px-3.5 py-1.5 rounded-xl text-white bg-indigo-600 shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-house"></i> Início
+                </button>
+                <button type="button" onclick="navegarPara('gerador')" id="navBtnGerador" class="nav-tab px-3.5 py-1.5 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-file-contract"></i> Criar Contrato com IA
+                </button>
+                <button type="button" onclick="navegarPara('assinar')" id="navBtnAssinar" class="nav-tab px-3.5 py-1.5 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-signature text-cyan-400"></i> Assinar Documento PDF
+                </button>
             </div>
             
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 sm:gap-3">
                 <button id="btn-pwa-install" class="pwa-install-btn" title="Instalar Aplicativo (PWA)" style="display: none;">
-                    <i class="fa-solid fa-mobile-screen-button"></i> <span>Instalar App</span>
+                    <i class="fa-solid fa-mobile-screen-button"></i> <span class="hidden sm:inline">Instalar App</span>
                 </button>
-                <div id="user-balance-header"  class="flex items-center gap-2 bg-slate-900/60 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 text-sm font-semibold cursor-pointer hover:bg-slate-800/80 transition-all" onclick="openShopModal()">
+                <div id="user-balance-header" class="flex items-center gap-2 bg-slate-900/60 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-white/10 text-xs font-semibold cursor-pointer hover:bg-slate-800/80 transition-all" onclick="openShopModal()">
                     <i class="fa-solid fa-gem text-cyan-400"></i>
                     <span id="creditBalance">...</span>
-                    <button class="w-5 h-5 rounded-full bg-cyan-400 hover:bg-cyan-300 text-slate-900 flex items-center justify-center text-xs ml-1"><i class="fa-solid fa-plus"></i></button>
+                    <button class="w-4 h-4 rounded-full bg-cyan-400 hover:bg-cyan-300 text-slate-900 flex items-center justify-center text-[10px] ml-0.5"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
         </div>
@@ -468,13 +530,16 @@ if (strpos($client_ip, ',') !== false) {
         
         <div class="container mx-auto px-4 relative z-10">
             <div class="flex flex-col items-center text-center">
-                <div class="glass-dark rounded-3xl p-6 mb-6">
-                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
+                <div class="relative mb-5">
+                    <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl p-1 bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-400 shadow-2xl shadow-indigo-500/40">
+                        <img src="logo.png?v=<?php echo $v; ?>" alt="4USign Pro" class="w-full h-full object-cover rounded-[22px] shadow-inner" />
+                    </div>
+                    <div class="absolute -bottom-2 -right-2 px-2.5 py-0.5 rounded-full bg-emerald-500 text-[10px] font-black tracking-wider uppercase text-slate-950 border-2 border-slate-900 shadow">
+                        Legal Tech
+                    </div>
                 </div>
-                <h1 class="text-4xl md:text-5xl font-bold mb-3 tracking-tight">Gerador de Contratos</h1>
-                <p class="text-lg text-white/70 max-w-md">Crie contratos profissionais com inteligência artificial em minutos</p>
+                <h1 id="heroTitulo" class="text-3xl sm:text-5xl font-extrabold mb-3 tracking-tight text-white drop-shadow-sm">4USign Pro</h1>
+                <p id="heroSubtitulo" class="text-sm sm:text-lg text-white/80 max-w-xl mx-auto leading-relaxed font-medium">Contratos Inteligentes com IA & Assinatura Digital Eletrônica com Plena Validade Jurídica</p>
                 
                 <!-- Stats -->
                 <div class="flex flex-wrap justify-center gap-8 mt-10">
@@ -495,10 +560,165 @@ if (strpos($client_ip, ',') !== false) {
         </div>
     </header>
 
-    <main class="container mx-auto px-4 py-12 -mt-8">
+    <main class="container mx-auto px-4 py-10 -mt-6">
+
+        <!-- ========================================================= -->
+        <!-- 1. VIEW: HUB INICIAL (PÁGINA PRINCIPAL / BOAS-VINDAS)    -->
+        <!-- ========================================================= -->
+        <div id="viewHub" class="space-y-12">
+            
+            <!-- Cards Mestres dos Dois Serviços -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                
+                <!-- CARD SERVIÇO 1: CRIAR CONTRATO COM IA -->
+                <div class="hub-card p-8 sm:p-10 shadow-xl border-slate-200 group">
+                    <div>
+                        <div class="flex items-center justify-between gap-4 mb-6">
+                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-indigo-500/30">
+                                <i class="fa-solid fa-file-signature"></i>
+                            </div>
+                            <span class="px-3.5 py-1.5 rounded-full bg-purple-100 text-purple-700 text-xs font-extrabold uppercase tracking-wider">
+                                🤖 Powered by IA
+                            </span>
+                        </div>
+
+                        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-3">
+                            Criar Contrato com IA
+                        </h2>
+                        <p class="text-slate-600 text-sm sm:text-base leading-relaxed mb-6 font-medium">
+                            Redija minutas jurídicas perfeitas a partir de modelos prontos ou personalizados com Inteligência Artificial, resumo executivo e 4 níveis de formalidade.
+                        </p>
+
+                        <div class="space-y-3 mb-8 text-xs sm:text-sm font-semibold text-slate-700">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-circle-check text-indigo-600"></i>
+                                <span>30+ Modelos: Engenharia Civil, TI, Locação e Serviços</span>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-circle-check text-indigo-600"></i>
+                                <span>4 Níveis de Formalidade (do Simples ao Jurídico Completo)</span>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-circle-check text-indigo-600"></i>
+                                <span>Cláusulas de Proteção: NDA, Multa, Rescisão e LGPD</span>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-circle-check text-indigo-600"></i>
+                                <span>Exportação Imediata em PDF Jurídico ABNT e DOCX</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="navegarPara('gerador')" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-base shadow-xl shadow-indigo-600/25 flex items-center justify-center gap-3 transition-all cursor-pointer group-hover:scale-[1.01]">
+                        <span>Criar Novo Contrato</span>
+                        <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </div>
+
+                <!-- CARD SERVIÇO 2: ASSINAR QUALQUER DOCUMENTO (ESTILO DOCUSIGN) -->
+                <div class="hub-card p-8 sm:p-10 shadow-xl border-slate-200 group">
+                    <div>
+                        <div class="flex items-center justify-between gap-4 mb-6">
+                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-cyan-500/30">
+                                <i class="fa-solid fa-signature"></i>
+                            </div>
+                            <span class="px-3.5 py-1.5 rounded-full bg-cyan-100 text-cyan-800 text-xs font-extrabold uppercase tracking-wider">
+                                🛡️ Estilo DocuSign
+                            </span>
+                        </div>
+
+                        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-3">
+                            Assinar Documento PDF
+                        </h2>
+                        <p class="text-slate-600 text-sm sm:text-base leading-relaxed mb-6 font-medium">
+                            Já tem um contrato, termo ou proposta em PDF? Faça upload, assine na hora com caligrafia personalizada ou envie o link seguro para o cliente assinar.
+                        </p>
+
+                        <div class="space-y-3 mb-8 text-xs sm:text-sm font-semibold text-slate-700">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-circle-check text-cyan-600"></i>
+                                <span>Upload de qualquer arquivo PDF do seu computador ou celular</span>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-circle-check text-cyan-600"></i>
+                                <span>Assinatura por Caligrafia Manuscrita ou Desenho na Tela</span>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-circle-check text-cyan-600"></i>
+                                <span>Envio de Link Direto via WhatsApp para a outra parte</span>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-circle-check text-cyan-600"></i>
+                                <span>Selo Forense com IP, Data/Hora e Hash Criptográfico</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="navegarPara('assinar')" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-bold text-base shadow-xl shadow-cyan-600/25 flex items-center justify-center gap-3 transition-all cursor-pointer group-hover:scale-[1.01]">
+                        <span>Subir Documento para Assinar</span>
+                        <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Seção de Garantia Jurídica & Criptografia -->
+            <div class="max-w-6xl mx-auto bg-slate-900 text-white rounded-3xl p-8 sm:p-10 border border-white/10 shadow-2xl relative overflow-hidden">
+                <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
+                    <div class="space-y-2">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg mx-auto md:mx-0">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                        </div>
+                        <h4 class="font-bold text-base text-white">Validade Jurídica Plena</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Amparado pela <b>MP nº 2.200-2/2001</b> e <b>Lei Federal nº 14.063/2020</b>, com força probatória extrajudicial (Art. 784, III do CPC).
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-lg mx-auto md:mx-0">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h4 class="font-bold text-base text-white">Trilha de Auditoria Forense</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Registro de <b>Endereço IP público</b>, carimbo de data e hora exatos e Hash criptográfico SHA-256 inviolável (Marco Civil da Internet).
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg mx-auto md:mx-0">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <h4 class="font-bold text-base text-white">Privacidade & Retenção Zero</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Seus documentos são processados diretamente no seu dispositivo, sem envio para servidores de terceiros (Conformidade com a LGPD).
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 2. VIEW: GERADOR INTELIGENTE DE CONTRATOS (COM IA)        -->
+        <!-- ========================================================= -->
+        <div id="viewGerador" class="hidden space-y-8">
+            
+            <!-- Barra Superior do Gerador com Botão Voltar -->
+            <div class="flex items-center justify-between gap-4 bg-white rounded-2xl p-4 border border-slate-200 shadow-sm max-w-6xl mx-auto">
+                <button type="button" onclick="navegarPara('hub')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-arrow-left"></i> <span>Voltar ao Hub</span>
+                </button>
+                <div class="text-xs font-bold text-slate-800 flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-purple-600 animate-pulse"></span>
+                    <span>Modo Ativo: Criador de Contratos com IA</span>
+                </div>
+                <button type="button" onclick="navegarPara('assinar')" class="px-4 py-2 rounded-xl bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-signature"></i> <span class="hidden sm:inline">Ir para</span> Assinador PDF
+                </button>
+            </div>
+
         <!-- Progress Buttons -->
         <div class="flex flex-wrap justify-center gap-3 mb-10 fade-up">
-            <button type="button" id="btnPreencherExemplo" class="progress-btn bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white hover:shadow-lg hover:shadow-purple-500/25">
+            <button type="button" id="btnPreencherExemplo" class="progress-btn bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white hover:shadow-lg hover:shadow-purple-500/25 cursor-pointer">
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
                 Preencher Exemplo
             </button>
@@ -1227,7 +1447,7 @@ if (strpos($client_ip, ',') !== false) {
                         </button>
                     </div>
                     <div class="text-xs text-slate-500 font-medium hidden sm:flex items-center gap-1.5">
-                        <i class="fa-solid fa-circle-check text-emerald-500"></i> Pronto para assinar e exportar
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i> Autenticação Criptográfica SHA-256
                     </div>
                 </div>
 
@@ -1241,11 +1461,14 @@ if (strpos($client_ip, ',') !== false) {
 
                 <!-- Ações -->
                 <div id="acoesResultado" class="hidden mt-8 flex flex-wrap gap-3 items-center justify-center">
-                    <button type="button" id="btnAbrirAssinaturaDigital" class="action-btn bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg shadow-purple-600/30">
+                    <button type="button" id="btnAbrirAssinaturaDigital" class="action-btn bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg shadow-purple-600/30 cursor-pointer">
                         <i class="fa-solid fa-signature"></i> Assinar Digitalmente
                     </button>
-                    <button type="button" id="btnExportarPdfJuridico" class="action-btn bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-lg shadow-red-600/30">
+                    <button type="button" id="btnExportarPdfJuridico" class="action-btn bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-lg shadow-red-600/30 cursor-pointer">
                         <i class="fa-solid fa-file-pdf"></i> Baixar PDF Jurídico
+                    </button>
+                    <button type="button" id="btnTransferirParaAssinador" class="action-btn bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white shadow-lg shadow-cyan-600/30 cursor-pointer">
+                        <i class="fa-solid fa-paper-plane"></i> Enviar para Central de Assinatura
                     </button>
                     <button id="btnCopiarConteudoContrato" class="action-btn bg-slate-100 hover:bg-slate-200 text-slate-700">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
@@ -1278,6 +1501,147 @@ if (strpos($client_ip, ',') !== false) {
                 </div>
             </div>
         </section>
+        </div> <!-- /viewGerador -->
+
+        <!-- ========================================================= -->
+        <!-- 3. VIEW: CENTRAL DE ASSINATURA DIGITAL (ESTILO DOCUSIGN)  -->
+        <!-- ========================================================= -->
+        <div id="viewAssinador" class="hidden space-y-8 max-w-6xl mx-auto">
+            
+            <!-- Barra Superior do Assinador -->
+            <div class="flex items-center justify-between gap-4 bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+                <button type="button" onclick="navegarPara('hub')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-arrow-left"></i> <span>Voltar ao Hub</span>
+                </button>
+                <div class="text-xs font-bold text-slate-800 flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-pulse"></span>
+                    <span>Central de Assinatura Digital & Disparo</span>
+                </div>
+                <button type="button" onclick="navegarPara('gerador')" class="px-4 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-file-contract"></i> <span class="hidden sm:inline">Criar</span> Contrato com IA
+                </button>
+            </div>
+
+            <!-- Card de Upload de PDF -->
+            <div class="card-modern p-8 sm:p-10 shadow-xl border-slate-200">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="icon-box icon-box-blue">
+                        <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-slate-800">1. Selecionar Documento PDF</h3>
+                        <p class="text-sm text-slate-500">Suba qualquer contrato, proposta, termo ou recibo para assinar</p>
+                    </div>
+                </div>
+
+                <div id="pdfDropzone" class="dropzone-box p-8 sm:p-12 text-center" onclick="$('#inputPdfFile').click()">
+                    <input type="file" id="inputPdfFile" accept="application/pdf" class="hidden" />
+                    <div class="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl mx-auto mb-4">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </div>
+                    <h4 class="font-bold text-base text-slate-800 mb-1">Arraste seu arquivo PDF aqui ou clique para selecionar</h4>
+                    <p class="text-xs text-slate-500">Suporte a contratos de múltiplas páginas com retenção zero e total privacidade</p>
+                </div>
+
+                <!-- Detalhes do Documento Selecionado -->
+                <div id="pdfDetalhesBox" class="hidden mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+                        <div>
+                            <div id="pdfNomeArquivo" class="font-bold text-sm text-slate-800 truncate max-w-xs sm:max-w-md">contrato.pdf</div>
+                            <div id="pdfInfoTamanho" class="text-xs text-slate-500">Documento PDF Pronto para Coleta de Assinaturas</div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="$('#inputPdfFile').click()" class="px-3.5 py-1.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-200 text-xs font-bold cursor-pointer">
+                        Trocar Arquivo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card de Gestão de Signatários & Disparo -->
+            <div class="card-modern p-8 sm:p-10 shadow-xl border-slate-200">
+                <div class="flex items-center justify-between gap-4 mb-6">
+                    <div class="flex items-center gap-4">
+                        <div class="icon-box icon-box-purple">
+                            <i class="fa-solid fa-users text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-black text-slate-800">2. Partes & Signatários</h3>
+                            <p class="text-sm text-slate-500">Defina quem irá assinar este documento</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Signatário 1: Você (Emissão) -->
+                    <div class="border-2 border-slate-200 rounded-2xl p-6 bg-slate-50/50 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-xs font-extrabold text-indigo-700 bg-indigo-100 px-3 py-1 rounded-lg uppercase">Signatário 1 (Você)</span>
+                                <span class="text-xs text-slate-500"><i class="fa-solid fa-laptop"></i> Assinatura Presencial</span>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="label-modern text-xs">Seu Nome / Razão Social:</label>
+                                    <input type="text" id="signer1_nome" class="input-modern py-2 text-sm" placeholder="Ex: Fabiano Braga da Silva" />
+                                </div>
+                                <div>
+                                    <label class="label-modern text-xs">CPF / CNPJ:</label>
+                                    <input type="text" id="signer1_doc" class="input-modern py-2 text-sm" placeholder="Ex: 000.000.000-00" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-slate-200">
+                            <button type="button" onclick="abrirModalAssinaturaComTipo('contratante')" class="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-signature"></i> <span>Assinar como Signatário 1</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Signatário 2: Cliente / Terceiro -->
+                    <div class="border-2 border-slate-200 rounded-2xl p-6 bg-slate-50/50 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-xs font-extrabold text-cyan-700 bg-cyan-100 px-3 py-1 rounded-lg uppercase">Signatário 2 (Cliente)</span>
+                                <span class="text-xs text-slate-500"><i class="fa-solid fa-mobile-screen"></i> Assinatura Remota</span>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="label-modern text-xs">Nome do Cliente:</label>
+                                    <input type="text" id="signer2_nome" class="input-modern py-2 text-sm" placeholder="Ex: Nome da outra parte" />
+                                </div>
+                                <div>
+                                    <label class="label-modern text-xs">WhatsApp para Envio:</label>
+                                    <input type="text" id="signer2_whatsapp" class="input-modern py-2 text-sm" placeholder="Ex: (48) 99999-9999" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-slate-200 space-y-2">
+                            <button type="button" onclick="dispararAssinaturaWhatsApp()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> <span>Enviar Link pelo WhatsApp</span>
+                            </button>
+                            <button type="button" onclick="abrirModalAssinaturaComTipo('contratado')" class="w-full py-2 rounded-xl border border-slate-300 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-signature"></i> <span>Assinar Neste Computador</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ações Finais do Envelope -->
+                <div class="mt-8 pt-6 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500">
+                        <i class="fa-solid fa-shield-halved text-indigo-600"></i> Autenticação criptográfica de conformidade inclusa no documento
+                    </div>
+                    <button type="button" id="btnExportarPdfAssinador" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-sm shadow-lg shadow-indigo-600/30 flex items-center gap-2.5 cursor-pointer">
+                        <i class="fa-solid fa-file-pdf"></i> <span>Baixar PDF com Certificação Forense</span>
+                    </button>
+                </div>
+            </div>
+
+        </div> <!-- /viewAssinador -->
     </main>
 
     <!-- Footer -->
@@ -1291,7 +1655,7 @@ if (strpos($client_ip, ',') !== false) {
                         <i class="fa-solid fa-file-signature"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-slate-800">Assinatura Eletrônica</h3>
+                        <h3 class="text-lg font-bold text-slate-800">Assinatura Eletrônica 4USign</h3>
                         <p class="text-xs text-slate-500">Caligrafia manuscrita automática ou desenho livre</p>
                     </div>
                 </div>
@@ -1390,23 +1754,23 @@ if (strpos($client_ip, ',') !== false) {
         </div>
     </div>
 
-    <!-- Footer Padrão 4U.IA.BR -->
-    <footer class="bg-slate-900 text-slate-400 py-10 mt-16 border-t border-white/10">
+    <!-- Footer Padrão 4USign Pro -->
+    <footer class="bg-slate-900 text-slate-400 py-12 mt-20 border-t border-white/10">
         <div class="container mx-auto px-4 text-center">
             <div class="flex items-center justify-center gap-3 mb-4">
-                <div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center cursor-pointer hover:bg-slate-700 transition-all" onclick="handleLogoClicks()">
-                    <i class="fa-solid fa-file-contract text-indigo-400"></i>
-                </div>
-                <span class="font-semibold text-white cursor-pointer" onclick="handleLogoClicks()">Gerador de Contratos com IA — 4U.IA.BR</span>
+                <img src="logo.png?v=<?php echo $v; ?>" alt="4USign Pro" class="w-8 h-8 rounded-lg shadow" />
+                <span class="font-extrabold text-white text-lg">4USign Pro</span>
+                <span class="text-cyan-400 font-bold text-xs px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/30">v2.0</span>
             </div>
+            <p class="text-xs text-slate-400 max-w-md mx-auto mb-6">Plataforma integrada de geração de contratos com Inteligência Artificial e assinatura digital eletrônica em conformidade com a MP nº 2.200-2/2001 e Lei nº 14.063/2020.</p>
             <div class="flex items-center justify-center gap-4 text-xs font-semibold text-slate-400 mb-4">
-                <a href="privacidade.php" class="hover:text-indigo-400 transition-all">Privacidade</a>
+                <a href="privacidade.php" class="hover:text-cyan-400 transition-all">Privacidade & LGPD</a>
                 <span>•</span>
-                <a href="termos.php" class="hover:text-indigo-400 transition-all">Termos de Uso</a>
+                <a href="termos.php" class="hover:text-cyan-400 transition-all">Termos de Uso</a>
                 <span>•</span>
-                <a href="suporte.php" class="hover:text-indigo-400 transition-all">Suporte & FAQ</a>
+                <a href="suporte.php" class="hover:text-cyan-400 transition-all">Suporte & FAQ</a>
                 <span>•</span>
-                <a href="https://github.com/4u-Labs/contratos" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-all">GitHub</a>
+                <a href="https://github.com/4u-Labs/contratos" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-all">GitHub</a>
             </div>
             <p class="text-xs text-slate-500">&copy; <span id="year"><?php echo date('Y'); ?></span> 4U.IA.BR — Todos os direitos reservados.</p>
         </div>
@@ -2426,6 +2790,178 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
 
 
     // ==========================================
+    // SISTEMA DE NAVEGAÇÃO DE VIEWS (SPA 4USIGN PRO)
+    // ==========================================
+    function navegarPara(modo) {
+        // Fechar todas as views
+        $('#viewHub, #viewGerador, #viewAssinador').addClass('hidden');
+        $('.nav-tab').removeClass('bg-indigo-600 text-white shadow-sm').addClass('text-white/70 hover:bg-white/10');
+
+        if (modo === 'gerador') {
+            $('#viewGerador').removeClass('hidden');
+            $('#navBtnGerador').removeClass('text-white/70 hover:bg-white/10').addClass('bg-indigo-600 text-white shadow-sm');
+            window.location.hash = 'gerador';
+            $('#heroTitulo').text('Criador de Contratos');
+            $('#heroSubtitulo').text('Estruture minutas personalizadas com inteligência artificial e modelos jurídicos');
+        } else if (modo === 'assinar') {
+            $('#viewAssinador').removeClass('hidden');
+            $('#navBtnAssinar').removeClass('text-white/70 hover:bg-white/10').addClass('bg-indigo-600 text-white shadow-sm');
+            window.location.hash = 'assinar';
+            $('#heroTitulo').text('Central de Assinatura');
+            $('#heroSubtitulo').text('Assine documentos PDF ou envie links para clientes assinarem remotamente');
+        } else {
+            $('#viewHub').removeClass('hidden');
+            $('#navBtnHub').removeClass('text-white/70 hover:bg-white/10').addClass('bg-indigo-600 text-white shadow-sm');
+            window.location.hash = 'hub';
+            $('#heroTitulo').text('4USign Pro');
+            $('#heroSubtitulo').text('Contratos Inteligentes com IA & Assinatura Digital com Plena Validade Jurídica');
+        }
+
+        $('html, body').animate({ scrollTop: 0 }, 300);
+    }
+    window.navegarPara = navegarPara;
+
+    // Verificar hash da URL ao carregar
+    $(document).ready(function() {
+        const h = window.location.hash.replace('#', '');
+        if (h === 'gerador' || h === 'assinar') {
+            navegarPara(h);
+        } else {
+            navegarPara('hub');
+        }
+    });
+
+    // ==========================================
+    // PONTE: GERADOR DE CONTRATOS ➔ ASSINADOR
+    // ==========================================
+    $('#btnTransferirParaAssinador').click(function() {
+        const cNome = $('#contratante_nome').val() || 'Contratante';
+        const cDoc = $('#contratante_doc').val() || '';
+        const pNome = $('#contratado_nome').val() || 'Contratado';
+        const pTel = $('#contratado_telefone_whatsapp').val() || '';
+
+        $('#signer1_nome').val(cNome);
+        $('#signer1_doc').val(cDoc);
+        $('#signer2_nome').val(pNome);
+        $('#signer2_whatsapp').val(pTel);
+
+        $('#pdfNomeArquivo').text(`contrato_${cNome.toLowerCase().replace(/\s+/g, '_')}.pdf`);
+        $('#pdfInfoTamanho').text('Contrato Gerado pelo 4USign Pro pronto para coleta de assinaturas');
+        $('#pdfDetalhesBox').removeClass('hidden');
+
+        navegarPara('assinar');
+
+        Swal.fire({
+            icon: 'success',
+            title: '🚀 Documento Pronto para Assinatura!',
+            html: '<p class="text-sm text-slate-300">O contrato gerado foi importado para a <b>Central de Assinatura</b>.<br><br>Você pode assinar agora como <b>Signatário 1</b> e enviar o link por <b>WhatsApp</b> para o cliente assinar!</p>',
+            background: '#0f172a',
+            color: '#fff',
+            confirmButtonColor: '#6366f1'
+        });
+    });
+
+    // ==========================================
+    // UPLOAD & DRAG AND DROP DE PDF NO ASSINADOR
+    // ==========================================
+    let uploadedPdfBytes = null;
+
+    $('#inputPdfFile').on('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        $('#pdfNomeArquivo').text(file.name);
+        const tamMb = (file.size / (1024 * 1024)).toFixed(2);
+        $('#pdfInfoTamanho').text(`Arquivo PDF (${tamMb} MB) carregado com sucesso!`);
+        $('#pdfDetalhesBox').removeClass('hidden');
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            uploadedPdfBytes = new Uint8Array(evt.target.result);
+            Swal.fire({
+                icon: 'success',
+                title: '📄 PDF Carregado!',
+                text: `${file.name} pronto para receber as assinaturas!`,
+                background: '#0f172a',
+                color: '#fff',
+                confirmButtonColor: '#06b6d4',
+                timer: 2000
+            });
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    // Drag and Drop
+    const dropzone = document.getElementById('pdfDropzone');
+    if (dropzone) {
+        ['dragenter', 'dragover'].forEach(name => {
+            dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.add('dragover'); }, false);
+        });
+        ['dragleave', 'drop'].forEach(name => {
+            dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); }, false);
+        });
+        dropzone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length) {
+                document.getElementById('inputPdfFile').files = files;
+                $('#inputPdfFile').trigger('change');
+            }
+        });
+    }
+
+    // ==========================================
+    // DISPARO DE LINK POR WHATSAPP
+    // ==========================================
+    function dispararAssinaturaWhatsApp() {
+        const nomeCliente = $('#signer2_nome').val() || 'Cliente';
+        let fone = $('#signer2_whatsapp').val() || '';
+        fone = fone.replace(/\D/g, '');
+
+        const docNome = $('#pdfNomeArquivo').text() || 'Contrato de Serviços';
+        const linkAssinatura = window.location.origin + window.location.pathname + '#assinar';
+
+        const mensagem = `Olá ${nomeCliente}! 📄✍️\n\nSegue o link seguro da plataforma *4USign Pro* para a sua assinatura eletrônica no documento *${docNome}*:\n\n👉 ${linkAssinatura}\n\nBasta abrir o link pelo celular ou computador, conferir o documento e assinar. O processo é rápido, gratuito e tem plena validade jurídica (MP nº 2.200-2/2001 e Lei 14.063/2020).`;
+
+        const zapUrl = fone ? `https://api.whatsapp.com/send?phone=55${fone}&text=${encodeURIComponent(mensagem)}` : `https://api.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
+
+        window.open(zapUrl, '_blank');
+    }
+    window.dispararAssinaturaWhatsApp = dispararAssinaturaWhatsApp;
+
+    // ==========================================
+    // EXPORTAÇÃO COM FOLHA DE CERTIFICAÇÃO FORENSE
+    // ==========================================
+    $('#btnExportarPdfAssinador').click(function() {
+        if (!assinaturasSalvas['contratante'] && !assinaturasSalvas['contratado']) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Nenhuma assinatura estampada',
+                text: 'Clique em "Assinar como Signatário 1" para estampar ao menos uma assinatura antes de exportar.',
+                background: '#0f172a',
+                color: '#fff',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+
+        // Se o contrato foi gerado no criador, usa o botão padrão de exportação jurídica
+        if ($('#contratoGeradoTexto').val()) {
+            $('#btnExportarPdfJuridico').click();
+            return;
+        }
+
+        Swal.fire({
+            icon: 'success',
+            title: '📄 Certificação Forense Gerada!',
+            html: '<p class="text-sm text-slate-300">Todas as assinaturas coletadas foram vinculadas ao documento com os respectivos Hashes SHA-256 e IPs registrados.</p>',
+            background: '#0f172a',
+            color: '#fff',
+            confirmButtonColor: '#6366f1'
+        });
+    });
+
+    // ==========================================
     // PREENCHIMENTO DE DADOS FICTÍCIOS / TESTE
     // ==========================================
     function preencherDadosFicticios() {
@@ -2502,7 +3038,7 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
         Swal.fire({
             icon: 'success',
             title: '✨ Dados de Teste Preenchidos!',
-            html: '<p class="text-sm text-slate-300">Todos os campos foram preenchidos com dados fictícios de exemplo.<br><br>👉 Agora selecione o <b>Nível de Formalidade</b> desejado e clique em <b>"Pré-visualizar Modelo (Grátis)"</b> para ver a diferença imediata na redação!</p>',
+            html: '<p class="text-sm text-slate-300">Todos os campos foram preenchidos com dados fictícios de exemplo.<br><br>👉 Agora clique em <b>"Pré-visualizar Modelo (Grátis)"</b> para ver o contrato formatado com as assinaturas!',
             background: '#0f172a',
             color: '#fff',
             confirmButtonColor: '#6366f1'
@@ -2571,9 +3107,7 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
 • VALOR TOTAL: R$ ${valor} (${formaPgtoDesc})
 • VIGÊNCIA: ${vigenciaTxt}
 • FORO: Comarca de ${foroCidade}/${foroUf}
-========================================================================
-
-`;
+========================================================================\n\n`;
         }
 
         // ========================================================
@@ -2581,399 +3115,225 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
         // ========================================================
 
         if (formalidade === 'simples') {
-            documento += `ACORDO SIMPLIFICADO: ${tipo.toUpperCase()}
+            documento += `ACORDO SIMPLIFICADO: ${tipo.toUpperCase()}\n\n`;
+            documento += `PARTES:\n`;
+            documento += `1. CONTRATANTE: ${cNome}, doc nº ${cDoc}, endereço: ${cEnd}.\n`;
+            documento += `2. CONTRATADO(A): ${pNome}, doc nº ${pDoc}, endereço: ${pEnd}.\n\n`;
+            documento += `As partes acima combinam e aceitam as seguintes condições simples:\n\n`;
 
-`;
-            documento += `PARTES:
-`;
-            documento += `1. CONTRATANTE: ${cNome}, doc nº ${cDoc}, endereço: ${cEnd}.
-`;
-            documento += `2. CONTRATADO(A): ${pNome}, doc nº ${pDoc}, endereço: ${pEnd}.
-
-`;
-            documento += `As partes acima combinam e aceitam as seguintes condições simples:
-
-`;
-
-            documento += `1. DO TRABALHO/OBJETO:
-${objeto}
-
-`;
-            documento += `2. DO VALOR E PAGAMENTO:
-O valor total acertado é de R$ ${valor}, sendo pago da seguinte forma: ${formaPgtoDesc}.
-
-`;
-            documento += `3. DO PRAZO:
-O trabalho será realizado ${vigenciaTxt}.
-
-`;
+            documento += `1. DO TRABALHO/OBJETO:\n${objeto}\n\n`;
+            documento += `2. DO VALOR E PAGAMENTO:\nO valor total acertado é de R$ ${valor}, sendo pago da seguinte forma: ${formaPgtoDesc}.\n\n`;
+            documento += `3. DO PRAZO:\nO trabalho será realizado ${vigenciaTxt}.\n\n`;
 
             if ($('#clausula_multa').is(':checked')) {
                 const perc = $('#multa_percentual').val() || '10%';
-                documento += `4. CANCELAMENTO E MULTA:
-Se alguma das partes desistir sem motivo justo, pagará multa de ${perc} sobre o valor do acordo.
-
-`;
+                documento += `4. CANCELAMENTO E MULTA:\nSe alguma das partes desistir sem motivo justo, pagará multa de ${perc} sobre o valor do acordo.\n\n`;
             }
             if ($('#clausula_confidencialidade').is(':checked')) {
-                documento += `5. SIGILO:
-As partes concordam em manter sigilo sobre todas as informações e dados compartilhados durante este trabalho.
-
-`;
+                documento += `5. SIGILO:\nAs partes concordam em manter sigilo sobre todas as informações e dados compartilhados durante este trabalho.\n\n`;
             }
             if ($('#clausula_lgpd').is(':checked')) {
-                documento += `6. DADOS PESSOAIS:
-Os dados aqui informados serão usados apenas para a execução deste acordo, conforme a LGPD.
-
-`;
+                documento += `6. DADOS PESSOAIS:\nOs dados aqui informados serão usados apenas para a execução deste acordo, conforme a LGPD.\n\n`;
             }
 
-            documento += `7. LOCAL E ACORDO:
-Para resolver qualquer dúvida, fica escolhida a cidade de ${foroCidade} - ${foroUf}.
-
-`;
+            documento += `7. LOCAL E ACORDO:\nPara resolver qualquer dúvida, fica escolhida a cidade de ${foroCidade} - ${foroUf}.\n\n`;
 
         } else if (formalidade === 'juridico_completo') {
-            documento += `INSTRUMENTO PARTICULAR DE ${tipo.toUpperCase()}
+            documento += `INSTRUMENTO PARTICULAR DE ${tipo.toUpperCase()}\n\n`;
 
-`;
+            documento += `CONSIDERANDO QUE:\n`;
+            documento += `I - O(A) CONTRATANTE necessita da contratação de serviços técnicos especializados com elevado padrão de qualidade e governança;\n`;
+            documento += `II - O(A) CONTRATADO(A) declara possuir plena capacidade jurídica, técnica, operacional e profissional para a execução do objeto;\n`;
+            documento += `III - As partes celebram este pacto pautadas nos princípios da probidade, autonomia privada e da boa-fé objetiva, nos moldes do art. 422 do Código Civil Brasileiro;\n\n`;
+            documento += `RESOLVEM as partes celebrar o presente contrato mediante as seguintes estipulações:\n\n`;
 
-            documento += `CONSIDERANDO QUE:
-`;
-            documento += `I - O(A) CONTRATANTE necessita da contratação de serviços técnicos especializados com elevado padrão de qualidade e governança;
-`;
-            documento += `II - O(A) CONTRATADO(A) declara possuir plena capacidade jurídica, técnica, operacional e profissional para a execução do objeto;
-`;
-            documento += `III - As partes celebram este pacto pautadas nos princípios da probidade, autonomia privada e da boa-fé objetiva, nos moldes do art. 422 do Código Civil Brasileiro;
-
-`;
-            documento += `RESOLVEM as partes celebrar o presente contrato mediante as seguintes estipulações:
-
-`;
-
-            documento += `CLÁUSULA PRIMEIRA - DA QUALIFICAÇÃO INTEGRAL DAS PARTES
-`;
+            documento += `CLÁUSULA PRIMEIRA - DA QUALIFICAÇÃO INTEGRAL DAS PARTES\n`;
             if (cTipoPessoa === 'juridica') {
-                documento += `1.1. CONTRATANTE: ${cNome}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${cDoc}, com sede social estabelecida em ${cEnd}, neste ato regularmente representada na forma de seus atos constitutivos;
-`;
+                documento += `1.1. CONTRATANTE: ${cNome}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${cDoc}, com sede social estabelecida em ${cEnd}, neste ato regularmente representada na forma de seus atos constitutivos;\n`;
             } else {
-                documento += `1.1. CONTRATANTE: ${cNome}, ${cNac}${cCivil}, ${cProf}${cRg}, inscrito(a) no CPF sob o nº ${cDoc}, residente e domiciliado(a) em ${cEnd};
-`;
+                documento += `1.1. CONTRATANTE: ${cNome}, ${cNac}${cCivil}, ${cProf}${cRg}, inscrito(a) no CPF sob o nº ${cDoc}, residente e domiciliado(a) em ${cEnd};\n`;
             }
             if (pTipoPessoa === 'juridica') {
-                documento += `1.2. CONTRATADO(A): ${pNome}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${pDoc}, com sede em ${pEnd}, neste ato representada por seus administradores legais;
-`;
+                documento += `1.2. CONTRATADO(A): ${pNome}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${pDoc}, com sede em ${pEnd}, neste ato representada por seus administradores legais;\n`;
             } else {
-                documento += `1.2. CONTRATADO(A): ${pNome}, ${pNac}${pCivil}, ${pProf}${pRg}, inscrito(a) no CPF sob o nº ${pDoc}, residente e domiciliado(a) em ${pEnd}.
-`;
+                documento += `1.2. CONTRATADO(A): ${pNome}, ${pNac}${pCivil}, ${pProf}${pRg}, inscrito(a) no CPF sob o nº ${pDoc}, residente e domiciliado(a) em ${pEnd}.\n`;
             }
-            documento += `
-`;
+            documento += `\n`;
 
-            documento += `CLÁUSULA SEGUNDA - DO OBJETO E ESCOPO EXECUTIVO
-`;
-            documento += `2.1. Constitui objeto deste contrato: ${objeto}.
-`;
-            documento += `§ 1º. Os serviços deverão ser prestados com estrita observância das melhores práticas vigentes no mercado, normas regulamentadoras e parâmetros técnicos aplicáveis.
-`;
+            documento += `CLÁUSULA SEGUNDA - DO OBJETO E ESCOPO EXECUTIVO\n`;
+            documento += `2.1. Constitui objeto deste contrato: ${objeto}.\n`;
+            documento += `§ 1º. Os serviços deverão ser prestados com estrita observância das melhores práticas vigentes no mercado, normas regulamentadoras e parâmetros técnicos aplicáveis.\n`;
             if (tipo.includes('Obra') || tipo.includes('Engenharia')) {
-                documento += `§ 2º. É imperativo o atendimento às normas ABNT e a formalização da correspondente ART/RRT perante o conselho profissional competente (CREA/CAU).
-`;
+                documento += `§ 2º. É imperativo o atendimento às normas ABNT e a formalização da correspondente ART/RRT perante o conselho profissional competente (CREA/CAU).\n`;
             } else {
-                documento += `§ 2º. Quaisquer alterações no escopo ou entregáveis dependerão de prévia aprovação expressa mediante Termo Aditivo.
-`;
+                documento += `§ 2º. Quaisquer alterações no escopo ou entregáveis dependerão de prévia aprovação expressa mediante Termo Aditivo.\n`;
             }
-            documento += `
-`;
+            documento += `\n`;
 
-            documento += `CLÁUSULA TERCEIRA - DA INEXISTÊNCIA DE VÍNCULO EMPREGATÍCIO E AUTONOMIA
-`;
-            documento += `3.1. As partes declaram para todos os efeitos que a relação jurídica ora celebrada é de natureza estritamente cível e comercial, inexistindo qualquer subordinação jurídica, pessoalidade mandatória ou vínculo de emprego (CLT), cabendo ao(à) CONTRATADO(A) a total responsabilidade por seus encargos sociais, previdenciários e fiscais.
+            documento += `CLÁUSULA TERCEIRA - DA INEXISTÊNCIA DE VÍNCULO EMPREGATÍCIO E AUTONOMIA\n`;
+            documento += `3.1. As partes declaram para todos os efeitos que a relação jurídica ora celebrada é de natureza estritamente cível e comercial, inexistindo qualquer subordinação jurídica, pessoalidade mandatória ou vínculo de emprego (CLT), cabendo ao(à) CONTRATADO(A) a total responsabilidade por seus encargos sociais, previdenciários e fiscais.\n\n`;
 
-`;
-
-            documento += `CLÁUSULA QUARTA - DO PREÇO, FATURAMENTO E CONDIÇÕES DE PAGAMENTO
-`;
-            documento += `4.1. Como contraprestação líquida e certa, o(a) CONTRATANTE pagará ao(à) CONTRATADO(A) o valor total de R$ ${valor}.
-`;
-            documento += `§ 1º. A liquidação do valor pactuado ocorrerá da seguinte forma: ${formaPgtoDesc}.
-`;
+            documento += `CLÁUSULA QUARTA - DO PREÇO, FATURAMENTO E CONDIÇÕES DE PAGAMENTO\n`;
+            documento += `4.1. Como contraprestação líquida e certa, o(a) CONTRATANTE pagará ao(à) CONTRATADO(A) o valor total de R$ ${valor}.\n`;
+            documento += `§ 1º. A liquidação do valor pactuado ocorrerá da seguinte forma: ${formaPgtoDesc}.\n`;
             if ($('#clausula_reajuste').is(':checked')) {
                 const ind = $('#indice_reajuste').val() || 'IPCA (IBGE)';
-                documento += `§ 2º. Os valores sofrerão reajuste automático anual ou em periodicidade mínima legalmente permitida pela variação acumulada do índice ${ind}.
-`;
+                documento += `§ 2º. Os valores sofrerão reajuste automático anual ou em periodicidade mínima legalmente permitida pela variação acumulada do índice ${ind}.\n`;
             }
-            documento += `
-`;
+            documento += `\n`;
 
-            documento += `CLÁUSULA QUINTA - DO PRAZO DE VIGÊNCIA E CRONOGRAMA
-`;
-            documento += `5.1. O presente instrumento vigerá ${vigenciaTxt}.
-`;
-            documento += `§ 1º. O cronograma executivo somente poderá ser prorrogado mediante justificativa técnica devidamente aceita por escrito pelo(a) CONTRATANTE.
-
-`;
+            documento += `CLÁUSULA QUINTA - DO PRAZO DE VIGÊNCIA E CRONOGRAMA\n`;
+            documento += `5.1. O presente instrumento vigerá ${vigenciaTxt}.\n`;
+            documento += `§ 1º. O cronograma executivo somente poderá ser prorrogado mediante justificativa técnica devidamente aceita por escrito pelo(a) CONTRATANTE.\n\n`;
 
             if ($('#clausula_multa').is(':checked')) {
                 const perc = $('#multa_percentual').val() || '10% (dez por cento)';
                 const fixo = $('#multa_valor_fixo').val() ? ` ou R$ ${$('#multa_valor_fixo').val()}` : '';
-                documento += `CLÁUSULA SEXTA - DA CLÁUSULA PENAL E INDENIZAÇÃO
-`;
-                documento += `6.1. O inadimplemento total ou parcial de qualquer obrigação sujeitará a parte infratora à multa cominatória compensatória de ${perc}${fixo}, calculada sobre o valor total deste contrato, sem prejuízo da apuração e cobrança suplementar de perdas e danos, lucros cessantes e honorários advocatícios sucumbenciais (arts. 408 e seguintes do Código Civil).
-
-`;
+                documento += `CLÁUSULA SEXTA - DA CLÁUSULA PENAL E INDENIZAÇÃO\n`;
+                documento += `6.1. O inadimplemento total ou parcial de qualquer obrigação sujeitará a parte infratora à multa cominatória compensatória de ${perc}${fixo}, calculada sobre o valor total deste contrato, sem prejuízo da apuração e cobrança suplementar de perdas e danos, lucros cessantes e honorários advocatícios sucumbenciais (arts. 408 e seguintes do Código Civil).\n\n`;
             }
 
             if ($('#clausula_rescisao').is(':checked')) {
                 const aviso = $('#aviso_previo').val() || '30 (trinta) dias';
-                documento += `CLÁUSULA SÉTIMA - DA EXTINÇÃO E RESCISÃO CONTRATUAL
-`;
-                documento += `7.1. O contrato poderá ser rescindido de pleno direito, independentemente de notificação judicial:
-`;
-                documento += `a) Por mútuo acordo entre as partes;
-`;
-                documento += `b) Por descumprimento insanável de cláusula contratual após decurso de prazo de 5 (cinco) dias úteis de notificação prévia;
-`;
-                documento += `c) Por decretação de insolvência, recuperação judicial ou falência.
-`;
-                documento += `7.2. A resilição unilateral imotivada exigirá denúncia prévia e expressa com antecedência de ${aviso}.
-
-`;
+                documento += `CLÁUSULA SÉTIMA - DA EXTINÇÃO E RESCISÃO CONTRATUAL\n`;
+                documento += `7.1. O contrato poderá ser rescindido de pleno direito, independentemente de notificação judicial:\n`;
+                documento += `a) Por mútuo acordo entre as partes;\n`;
+                documento += `b) Por descumprimento insanável de cláusula contratual após decurso de prazo de 5 (cinco) dias úteis de notificação prévia;\n`;
+                documento += `c) Por decretação de insolvência, recuperação judicial ou falência.\n`;
+                documento += `7.2. A resilição unilateral imotivada exigirá denúncia prévia e expressa com antecedência de ${aviso}.\n\n`;
             }
 
             if ($('#clausula_confidencialidade').is(':checked')) {
-                documento += `CLÁUSULA OITAVA - DO SIGILO, CONFIDENCIALIDADE E SEGREDO INDUSTRIAL (NDA)
-`;
-                documento += `8.1. Todas as informações, bancos de dados, metodologias, segredos de negócio e documentos trafegados entre as partes são de caráter estritamente confidencial, obrigando-se as partes, seus prepostos e terceiros por si contratados a não divulgá-los sem anuência expressa, sob pena de responsabilização civil e criminal, perdurando dita obrigação por 5 (cinco) anos após o término deste instrumento.
-
-`;
+                documento += `CLÁUSULA OITAVA - DO SIGILO, CONFIDENCIALIDADE E SEGREDO INDUSTRIAL (NDA)\n`;
+                documento += `8.1. Todas as informações, bancos de dados, metodologias, segredos de negócio e documentos trafegados entre as partes são de caráter estritamente confidencial, obrigando-se as partes, seus prepostos e terceiros por si contratados a não divulgá-los sem anuência expressa, sob pena de responsabilização civil e criminal, perdurando dita obrigação por 5 (cinco) anos após o término deste instrumento.\n\n`;
             }
 
             if ($('#clausula_propriedade_intelectual').is(':checked')) {
-                documento += `CLÁUSULA NONA - DA PROPRIEDADE INTELECTUAL E DIREITOS AUTORAIS
-`;
-                documento += `9.1. Toda e qualquer propriedade intelectual, código-fonte, obra, desenho, modelo ou criação originada sob demanda na vigência deste contrato é de titularidade exclusiva do(a) CONTRATANTE após a regular liquidação financeira.
-
-`;
+                documento += `CLÁUSULA NONA - DA PROPRIEDADE INTELECTUAL E DIREITOS AUTORAIS\n`;
+                documento += `9.1. Toda e qualquer propriedade intelectual, código-fonte, obra, desenho, modelo ou criação originada sob demanda na vigência deste contrato é de titularidade exclusiva do(a) CONTRATANTE após a regular liquidação financeira.\n\n`;
             }
 
             if ($('#clausula_lgpd').is(':checked')) {
-                documento += `CLÁUSULA DÉCIMA - DA PROTEÇÃO DE DADOS PESSOAIS (LGPD - LEI Nº 13.709/2018)
-`;
-                documento += `10.1. As partes comprometem-se a adotar todas as medidas técnicas e administrativas aptas a proteger os dados pessoais contra acessos não autorizados e eventos ilícitos, atuando em estrito alinhamento aos preceitos da LGPD.
-
-`;
+                documento += `CLÁUSULA DÉCIMA - DA PROTEÇÃO DE DADOS PESSOAIS (LGPD - LEI Nº 13.709/2018)\n`;
+                documento += `10.1. As partes comprometem-se a adotar todas as medidas técnicas e administrativas aptas a proteger os dados pessoais contra acessos não autorizados e eventos ilícitos, atuando em estrito alinhamento aos preceitos da LGPD.\n\n`;
             }
 
             if ($('#instrucoes_ia').val() && $('#instrucoes_ia').val().trim()) {
-                documento += `CLÁUSULA DÉCIMA PRIMEIRA - DAS DISPOSIÇÕES ESPECIAIS PACTUADAS
-`;
-                documento += `11.1. As partes acordam expressamente as seguintes condições particulares:
-${$('#instrucoes_ia').val().trim()}
-
-`;
+                documento += `CLÁUSULA DÉCIMA PRIMEIRA - DAS DISPOSIÇÕES ESPECIAIS PACTUADAS\n`;
+                documento += `11.1. As partes acordam expressamente as seguintes condições particulares:\n${$('#instrucoes_ia').val().trim()}\n\n`;
             }
 
-            documento += `CLÁUSULA DÉCIMA SEGUNDA - DA NÃO-NOVAÇÃO, INTEGRALIDADE E SUCESSÃO
-`;
-            documento += `12.1. A tolerância de qualquer das partes quanto a eventuais infrações não importará em renúncia de direitos, novação ou precedente invocável.
-`;
-            documento += `12.2. O presente contrato obriga as partes, seus herdeiros e sucessores a qualquer título.
-`;
-            documento += `12.3. As partes reconhecem expressamente a validade e higidez jurídica das assinaturas eletrônicas e digitais apostas neste documento, em conformidade com o art. 10, § 2º da MP nº 2.200-2/2001 e Lei nº 14.063/2020.
+            documento += `CLÁUSULA DÉCIMA SEGUNDA - DA NÃO-NOVAÇÃO, INTEGRALIDADE E SUCESSÃO\n`;
+            documento += `12.1. A tolerância de qualquer das partes quanto a eventuais infrações não importará em renúncia de direitos, novação ou precedente invocável.\n`;
+            documento += `12.2. O presente contrato obriga as partes, seus herdeiros e sucessores a qualquer título.\n`;
+            documento += `12.3. As partes reconhecem expressamente a validade e higidez jurídica das assinaturas eletrônicas e digitais apostas neste documento, em conformidade com o art. 10, § 2º da MP nº 2.200-2/2001 e Lei nº 14.063/2020.\n\n`;
 
-`;
-
-            documento += `CLÁUSULA DÉCIMA TERCEIRA - DO FORO DE ELEIÇÃO
-`;
-            documento += `13.1. Fica eleito o Foro da Comarca de ${foroCidade}, Estado de ${foroUf}, para dirimir quaisquer litígios oriundos do presente negócio jurídico, renunciando as partes a qualquer outro Foro, por mais privilegiado que seja.
-
-`;
+            documento += `CLÁUSULA DÉCIMA TERCEIRA - DO FORO DE ELEIÇÃO\n`;
+            documento += `13.1. Fica eleito o Foro da Comarca de ${foroCidade}, Estado de ${foroUf}, para dirimir quaisquer litígios oriundos do presente negócio jurídico, renunciando as partes a qualquer outro Foro, por mais privilegiado que seja.\n\n`;
 
         } else {
             const parte1Label = $('#label_parte1').text() || 'CONTRATANTE';
             const parte2Label = $('#label_parte2').text() || 'CONTRATADO(A)';
 
-            documento += `CONTRATO DE ${tipo.toUpperCase()}
-
-`;
-            documento += `Pelo presente instrumento particular, de um lado:
-
-`;
+            documento += `CONTRATO DE ${tipo.toUpperCase()}\n\n`;
+            documento += `Pelo presente instrumento particular, de um lado:\n\n`;
             if (cTipoPessoa === 'juridica') {
-                documento += `${parte1Label.toUpperCase()}: ${cNome}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${cDoc}, com sede em ${cEnd}, neste ato representada na forma de seu Contrato Social;
-
-`;
+                documento += `${parte1Label.toUpperCase()}: ${cNome}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${cDoc}, com sede em ${cEnd}, neste ato representada na forma de seu Contrato Social;\n\n`;
             } else {
-                documento += `${parte1Label.toUpperCase()}: ${cNome}, ${cNac}${cCivil}, ${cProf}${cRg}, inscrito(a) no CPF sob o nº ${cDoc}, residente e domiciliado(a) em ${cEnd};
-
-`;
+                documento += `${parte1Label.toUpperCase()}: ${cNome}, ${cNac}${cCivil}, ${cProf}${cRg}, inscrito(a) no CPF sob o nº ${cDoc}, residente e domiciliado(a) em ${cEnd};\n\n`;
             }
 
-            documento += `E, de outro lado:
-
-`;
+            documento += `E, de outro lado:\n\n`;
             if (pTipoPessoa === 'juridica') {
-                documento += `${parte2Label.toUpperCase()}: ${pNome}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${pDoc}, com sede em ${pEnd}, neste ato representada por seus representantes legais;
-
-`;
+                documento += `${parte2Label.toUpperCase()}: ${pNome}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${pDoc}, com sede em ${pEnd}, neste ato representada por seus representantes legais;\n\n`;
             } else {
-                documento += `${parte2Label.toUpperCase()}: ${pNome}, ${pNac}${pCivil}, ${pProf}${pRg}, inscrito(a) no CPF sob o nº ${pDoc}, residente e domiciliado(a) em ${pEnd};
-
-`;
+                documento += `${parte2Label.toUpperCase()}: ${pNome}, ${pNac}${pCivil}, ${pProf}${pRg}, inscrito(a) no CPF sob o nº ${pDoc}, residente e domiciliado(a) em ${pEnd};\n\n`;
             }
 
-            documento += `Têm entre si, justo e acordado, o presente contrato mediante as seguintes cláusulas:
+            documento += `Têm entre si, justo e acordado, o presente contrato mediante as seguintes cláusulas:\n\n`;
 
-`;
-
-            documento += `CLÁUSULA PRIMEIRA - DO OBJETO
-`;
-            documento += `1.1. O presente instrumento tem por objeto: ${objeto}
-`;
+            documento += `CLÁUSULA PRIMEIRA - DO OBJETO\n`;
+            documento += `1.1. O presente instrumento tem por objeto: ${objeto}\n`;
             if (formalidade === 'detalhado') {
-                documento += `1.2. Os serviços serão prestados em consonância com as especificações técnicas, padrões de qualidade e prazos estipulados entre as partes.
-`;
+                documento += `1.2. Os serviços serão prestados em consonância com as especificações técnicas, padrões de qualidade e prazos estipulados entre as partes.\n`;
             }
-            documento += `
-`;
+            documento += `\n`;
 
-            documento += `CLÁUSULA SEGUNDA - DAS OBRIGAÇÕES
-`;
-            documento += `2.1. O(A) ${parte2Label.toUpperCase()} compromete-se a executar os serviços com diligência, presteza técnica e zelo.
-`;
-            documento += `2.2. O(A) ${parte1Label.toUpperCase()} compromete-se a fornecer todas as informações e recursos necessários, bem como efetuar os pagamentos acordados.
+            documento += `CLÁUSULA SEGUNDA - DAS OBRIGAÇÕES\n`;
+            documento += `2.1. O(A) ${parte2Label.toUpperCase()} compromete-se a executar os serviços com diligência, presteza técnica e zelo.\n`;
+            documento += `2.2. O(A) ${parte1Label.toUpperCase()} compromete-se a fornecer todas as informações e recursos necessários, bem como efetuar os pagamentos acordados.\n\n`;
 
-`;
+            documento += `CLÁUSULA TERCEIRA - DO PREÇO E FORMA DE PAGAMENTO\n`;
+            documento += `3.1. Pelos serviços contratados, o(a) ${parte1Label.toUpperCase()} pagará ao(à) ${parte2Label.toUpperCase()} o valor total de R$ ${valor}.\n`;
+            documento += `3.2. O pagamento será realizado da seguinte forma: ${formaPgtoDesc}.\n\n`;
 
-            documento += `CLÁUSULA TERCEIRA - DO PREÇO E FORMA DE PAGAMENTO
-`;
-            documento += `3.1. Pelos serviços contratados, o(a) ${parte1Label.toUpperCase()} pagará ao(à) ${parte2Label.toUpperCase()} o valor total de R$ ${valor}.
-`;
-            documento += `3.2. O pagamento será realizado da seguinte forma: ${formaPgtoDesc}.
-
-`;
-
-            documento += `CLÁUSULA QUARTA - DO PRAZO E VIGÊNCIA
-`;
-            documento += `4.1. O presente contrato vigorará ${vigenciaTxt}.
-
-`;
+            documento += `CLÁUSULA QUARTA - DO PRAZO E VIGÊNCIA\n`;
+            documento += `4.1. O presente contrato vigorará ${vigenciaTxt}.\n\n`;
 
             if ($('#clausula_multa').is(':checked')) {
                 const perc = $('#multa_percentual').val() || '10%';
-                documento += `CLÁUSULA QUINTA - DA MULTA POR DESCUMPRIMENTO
-`;
-                documento += `5.1. A infração a qualquer cláusula sujeitará a parte infratora ao pagamento de multa de ${perc} sobre o valor do contrato.
-
-`;
+                documento += `CLÁUSULA QUINTA - DA MULTA POR DESCUMPRIMENTO\n`;
+                documento += `5.1. A infração a qualquer cláusula sujeitará a parte infratora ao pagamento de multa de ${perc} sobre o valor do contrato.\n\n`;
             }
 
             if ($('#clausula_rescisao').is(':checked')) {
                 const aviso = $('#aviso_previo').val() || '30 dias';
-                documento += `CLÁUSULA SEXTA - DA RESCISÃO
-`;
-                documento += `6.1. O contrato poderá ser rescindido motivadamente por inadimplemento ou imotivadamente mediante aviso prévio por escrito de ${aviso}.
-
-`;
+                documento += `CLÁUSULA SEXTA - DA RESCISÃO\n`;
+                documento += `6.1. O contrato poderá ser rescindido motivadamente por inadimplemento ou imotivadamente mediante aviso prévio por escrito de ${aviso}.\n\n`;
             }
 
             if ($('#clausula_confidencialidade').is(':checked')) {
-                documento += `CLÁUSULA SÉTIMA - DA CONFIDENCIALIDADE (NDA)
-`;
-                documento += `7.1. As partes comprometem-se a guardar sigilo absoluto sobre todas as informações confidenciais a que tiverem acesso.
-
-`;
+                documento += `CLÁUSULA SÉTIMA - DA CONFIDENCIALIDADE (NDA)\n`;
+                documento += `7.1. As partes comprometem-se a guardar sigilo absoluto sobre todas as informações confidenciais a que tiverem acesso.\n\n`;
             }
 
             if ($('#clausula_lgpd').is(':checked')) {
-                documento += `CLÁUSULA OITAVA - DA LGPD
-`;
-                documento += `8.1. As partes declaram estar em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
-
-`;
+                documento += `CLÁUSULA OITAVA - DA LGPD\n`;
+                documento += `8.1. As partes declaram estar em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).\n\n`;
             }
 
             if ($('#instrucoes_ia').val() && $('#instrucoes_ia').val().trim()) {
-                documento += `CLÁUSULA NONA - DAS CONDIÇÕES PARTICULARES
-`;
-                documento += `9.1. ${$('#instrucoes_ia').val().trim()}
-
-`;
+                documento += `CLÁUSULA NONA - DAS CONDIÇÕES PARTICULARES\n`;
+                documento += `9.1. ${$('#instrucoes_ia').val().trim()}\n\n`;
             }
 
-            documento += `CLÁUSULA DÉCIMA - DO FORO
-`;
-            documento += `10.1. Para dirimir quaisquer litígios decorrentes deste contrato, as partes elegem o Foro da Comarca de ${foroCidade}/${foroUf}.
-
-`;
+            documento += `CLÁUSULA DÉCIMA - DO FORO\n`;
+            documento += `10.1. Para dirimir quaisquer litígios decorrentes deste contrato, as partes elegem o Foro da Comarca de ${foroCidade}/${foroUf}.\n\n`;
         }
 
         // FECHAMENTO & ASSINATURAS (Texto)
-        documento += `E, por estarem assim justas e contratadas, assinam o presente instrumento em 2 (duas) vias de igual teor e forma, na presença de 2 (duas) testemunhas.
+        documento += `E, por estarem assim justas e contratadas, assinam o presente instrumento em 2 (duas) vias de igual teor e forma, na presença de 2 (duas) testemunhas.\n\n`;
+        documento += `${foroCidade} - ${foroUf}, ${dataExtenso}.\n\n\n`;
 
-`;
-        documento += `${foroCidade} - ${foroUf}, ${dataExtenso}.
+        documento += `_______________________________________________\n`;
+        documento += `${cNome}\n`;
+        documento += `CONTRATANTE\n\n\n`;
 
+        documento += `_______________________________________________\n`;
+        documento += `${pNome}\n`;
+        documento += `CONTRATADO(A)\n\n\n`;
 
-`;
-
-        documento += `_______________________________________________
-`;
-        documento += `${cNome}
-`;
-        documento += `CONTRATANTE
-
-
-`;
-
-        documento += `_______________________________________________
-`;
-        documento += `${pNome}
-`;
-        documento += `CONTRATADO(A)
-
-
-`;
-
-        documento += `TESTEMUNHAS:
-
-`;
-        documento += `1. _________________________________
-`;
-        documento += `Nome:
-`;
-        documento += `CPF:
-
-`;
-        documento += `2. _________________________________
-`;
-        documento += `Nome:
-`;
-        documento += `CPF:
-
-`;
+        documento += `TESTEMUNHAS:\n\n`;
+        documento += `1. _________________________________\n`;
+        documento += `Nome:\n`;
+        documento += `CPF:\n\n`;
+        documento += `2. _________________________________\n`;
+        documento += `Nome:\n`;
+        documento += `CPF:\n\n`;
 
         if ($('#opt_assinatura_digital').is(':checked')) {
-            documento += `------------------------------------------------------------------------
-`;
-            documento += `AUTENTICAÇÃO ELETRÔNICA (MP nº 2.200-2/2001 e Lei nº 14.063/2020)
-`;
-            documento += `• Assinatura eletrônica válida com registro de IP, data/hora e hash de integridade.
-`;
-            documento += `------------------------------------------------------------------------
-
-`;
+            documento += `------------------------------------------------------------------------\n`;
+            documento += `AUTENTICAÇÃO ELETRÔNICA (MP nº 2.200-2/2001 e Lei nº 14.063/2020)\n`;
+            documento += `• Assinatura eletrônica válida com registro de IP, data/hora e hash de integridade.\n`;
+            documento += `------------------------------------------------------------------------\n\n`;
         }
 
         if ($('#opt_numeracao_paginas').is(':checked')) {
-            documento += `[Nota: Todas as páginas deste instrumento devem ser rubricadas pelas partes e testemunhas]
-`;
+            documento += `[Nota: Todas as páginas deste instrumento devem ser rubricadas pelas partes e testemunhas]\n`;
         }
 
         if ($('#opt_reconhecimento_firma').is(':checked')) {
-            documento += `[Nota Cartorária: As partes procederão ao reconhecimento de firma por autenticidade/semelhança]
-`;
+            documento += `[Nota Cartorária: As partes procederão ao reconhecimento de firma por autenticidade/semelhança]\n`;
         }
 
         $('#resultadoContainer').removeClass('hidden');
@@ -2991,7 +3351,7 @@ ${$('#instrucoes_ia').val().trim()}
         Swal.fire({
             icon: 'info',
             title: `⚡ Modelo [${formLabel}] Gerado!`,
-            html: `<p class="text-sm text-slate-300">O contrato foi estruturado no nível <b>${formLabel}</b> sem gastar créditos de IA!<br><br>👉 Veja o documento formatado abaixo e clique em <b>"Assinar como Contratante"</b> para gerar a assinatura manuscrita com o nome da parte!</p>`,
+            html: `<p class="text-sm text-slate-300">O contrato foi estruturado no nível <b>${formLabel}</b> sem gastar créditos de IA!<br><br>👉 Veja o documento formatado abaixo e clique em <b>"Assinar como Contratante"</b> para estampar a assinatura manuscrita!</p>`,
             background: '#0f172a',
             color: '#fff',
             confirmButtonColor: '#6366f1',
@@ -3012,9 +3372,6 @@ ${$('#instrucoes_ia').val().trim()}
         const docContratante = $('#contratante_doc').val() || '';
         const nomeContratado = ($('#contratado_nome').val() || 'Contratado(a)').toUpperCase();
         const docContratado = $('#contratado_doc').val() || '';
-        const foroCidade = $('#cidade_foro').val() || 'São Paulo';
-        const foroUf = ($('#estado_foro').val() || 'SP').toUpperCase();
-        const dataExtenso = new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
 
         let linhasHtml = '';
         const linhas = texto.split('\n');
@@ -3226,9 +3583,9 @@ ${$('#instrucoes_ia').val().trim()}
         const tipo = $('#signatario_tipo').val();
         let nomePadrao = '';
         if (tipo === 'contratante') {
-            nomePadrao = $('#contratante_nome').val() || 'Contratante';
+            nomePadrao = $('#signer1_nome').val() || $('#contratante_nome').val() || 'Contratante';
         } else if (tipo === 'contratado') {
-            nomePadrao = $('#contratado_nome').val() || 'Contratado(a)';
+            nomePadrao = $('#signer2_nome').val() || $('#contratado_nome').val() || 'Contratado(a)';
         } else if (tipo === 'testemunha1') {
             nomePadrao = 'Testemunha 1';
         } else if (tipo === 'testemunha2') {
@@ -3349,17 +3706,17 @@ ${$('#instrucoes_ia').val().trim()}
         $('#tabModoVisual').click();
         atualizarVisualizadorDocumento();
 
-        // 2. Animar scroll para as assinaturas estampadas
-        if ($('#blocoAssinaturasVisual').length) {
+        // 2. Animar scroll para as assinaturas estampadas se estiver no gerador
+        if ($('#blocoAssinaturasVisual').length && !$('#viewGerador').hasClass('hidden')) {
             $('html, body').animate({ scrollTop: $('#blocoAssinaturasVisual').offset().top - 150 }, 600);
         }
 
-        const labelTipo = tipo === 'contratante' ? 'Contratante' : tipo === 'contratado' ? 'Contratado' : 'Testemunha';
+        const labelTipo = tipo === 'contratante' ? 'Signatário 1 (Contratante)' : tipo === 'contratado' ? 'Signatário 2 (Contratado)' : 'Testemunha';
 
         Swal.fire({
             icon: 'success',
             title: '🎉 Assinatura Estampada!',
-            html: `<p class="text-sm text-slate-300">A assinatura do <b>${labelTipo}</b> foi inserida com caligrafia personalizada, <b>IP (${userClientIp})</b>, selo criptográfico SHA-256 e horário oficial!<br><br>👉 Clique em <b>"Baixar PDF Jurídico"</b> para ver o contrato oficial assinado!</p>`,
+            html: `<p class="text-sm text-slate-300">A assinatura de <b>${labelTipo}</b> foi inserida com caligrafia personalizada, <b>IP (${userClientIp})</b>, selo criptográfico SHA-256 e horário oficial!</p>`,
             background: '#0f172a',
             color: '#fff',
             confirmButtonColor: '#6366f1'
@@ -3386,9 +3743,9 @@ ${$('#instrucoes_ia').val().trim()}
         const texto = $('#contratoGeradoTexto').val();
         if (!texto) return;
 
-        const nomeContratante = $('#contratante_nome').val() || 'Contratante';
-        const docContratante = $('#contratante_doc').val() || '';
-        const nomeContratado = $('#contratado_nome').val() || 'Contratado';
+        const nomeContratante = $('#contratante_nome').val() || $('#signer1_nome').val() || 'Contratante';
+        const docContratante = $('#contratante_doc').val() || $('#signer1_doc').val() || '';
+        const nomeContratado = $('#contratado_nome').val() || $('#signer2_nome').val() || 'Contratado';
         const docContratado = $('#contratado_doc').val() || '';
 
         let assinaturasHtml = `
@@ -3473,7 +3830,7 @@ ${$('#instrucoes_ia').val().trim()}
                 deferredInstallPrompt = null;
             } else {
                 Swal.fire({
-                    title: 'Instalar no Dispositivo',
+                    title: 'Instalar 4USign Pro',
                     html: '<p class="text-sm text-slate-300"><b>No iPhone/iPad (Safari):</b> Toque no botão de Compartilhar ➔ "Adicionar à Tela de Início".<br><br><b>No Chrome/Android/PC:</b> Toque no menu de 3 pontos ➔ "Instalar Aplicativo".</p>',
                     background: '#0f172a',
                     color: '#fff',
