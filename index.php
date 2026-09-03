@@ -1776,17 +1776,6 @@ if (strpos($client_ip, ',') !== false) {
         </div>
     </footer>
 
-        <div class="container mx-auto px-4 text-center">
-            <div class="flex items-center justify-center gap-3 mb-4">
-                <div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center cursor-pointer hover:bg-slate-700 transition-all" onclick="handleLogoClicks()">
-                    <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                </div>
-                <span class="font-semibold text-white cursor-pointer" onclick="handleLogoClicks()">Gerador de Contratos</span>
-            </div>
-            <p class="text-sm">Este é um rascunho gerado por IA. Consulte sempre um advogado antes de assinar.</p>
-            <p class="text-xs text-slate-500 mt-2">&copy; 2026 <a href="https://4u.ia.br" target="_blank" class="hover:text-indigo-400 font-semibold transition-all">4u.ia.br</a> - Todos os direitos reservados</p>
-        </div>
-    </footer>
 
     <!-- Modal Recarga & Conta Keep AI -->
     <div id="shopModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-fade-in">
