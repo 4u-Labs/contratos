@@ -527,6 +527,9 @@ if (strpos($client_ip, ',') !== false) {
                 <button type="button" onclick="navegarPara('assinar')" id="navBtnAssinar" class="nav-tab px-3.5 py-1.5 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-signature text-cyan-400"></i> Assinar Documento PDF
                 </button>
+                <button type="button" onclick="abrirModalValidadeJuridica()" class="px-3.5 py-1.5 rounded-xl text-cyan-300 hover:text-white hover:bg-cyan-900/40 border border-cyan-500/30 transition-all flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-scale-balanced text-cyan-400"></i> Validade Jurídica
+                </button>
             </div>
             
             <div class="flex items-center gap-2 sm:gap-3">
@@ -711,6 +714,16 @@ if (strpos($client_ip, ',') !== false) {
                             Seus documentos são processados diretamente no seu dispositivo, sem compartilhamento com terceiros (Conformidade com a LGPD).
                         </p>
                     </div>
+                </div>
+
+                <!-- Botão de Acesso ao Guia de Validade Jurídica -->
+                <div class="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="text-xs text-slate-400 text-center sm:text-left leading-relaxed">
+                        <i class="fa-solid fa-circle-question text-cyan-400 mr-1"></i> Dúvidas sobre o que pode ser assinado digitalmente e o que ainda exige cartório físico?
+                    </div>
+                    <button type="button" onclick="abrirModalValidadeJuridica()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-extrabold text-xs shadow-lg shadow-cyan-600/30 transition-all flex items-center gap-2 cursor-pointer hover:scale-105 shrink-0">
+                        <i class="fa-solid fa-scale-balanced"></i> <span>O que é Válido? Guia Jurídico</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -1765,6 +1778,127 @@ if (strpos($client_ip, ',') !== false) {
         </div>
     </div>
 
+    <!-- Modal: Guia Completo de Validade Jurídica (O que Vale vs O que Exige Cartório) -->
+    <div id="modalValidadeJuridica" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+            
+            <!-- Cabeçalho -->
+            <div class="flex justify-between items-start mb-6 border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl shadow-inner">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-slate-900 tracking-tight">Validade Jurídica da Assinatura Digital</h3>
+                        <p class="text-xs text-slate-500 font-medium">Conformidade com a MP nº 2.200-2/2001 e Lei Federal nº 14.063/2020</p>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalValidadeJuridica()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Corpo Explicativo -->
+            <div class="space-y-6 text-sm text-slate-700 leading-relaxed">
+                
+                <!-- Introdução Rápida -->
+                <div class="bg-indigo-50/70 border border-indigo-200/80 rounded-2xl p-4 text-xs text-indigo-950 flex items-start gap-3">
+                    <i class="fa-solid fa-circle-info text-indigo-600 text-base mt-0.5"></i>
+                    <div>
+                        <b class="text-indigo-900 font-bold">Princípio da Liberdade das Formas (Art. 107 do Código Civil):</b>
+                        No Brasil, a validade da declaração de vontade não depende de forma especial, senão quando a lei expressamente a exigir. Qualquer contrato particular é 100% válido por assinatura eletrônica quando comprovada sua integridade e autoria.
+                    </div>
+                </div>
+
+                <!-- Bloco 1: O QUE TEM 100% DE VALIDADE -->
+                <div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-black">✓</span>
+                        <h4 class="font-extrabold text-slate-900 text-base">O que PODE ser assinado no 4USign Pro (95% dos casos):</h4>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                            <b class="text-slate-900">📄 Prestação de Serviços:</b>
+                            <p class="text-slate-500 mt-0.5">Engenharia, TI, consultoria, advocacia, design, médicos e autônomos.</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                            <b class="text-slate-900">🏠 Locação de Imóveis:</b>
+                            <p class="text-slate-500 mt-0.5">Contratos residenciais, comerciais e termos de vistoria de entrada e saída.</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                            <b class="text-slate-900">💼 Comercial & Vendas:</b>
+                            <p class="text-slate-500 mt-0.5">Propostas comerciais, ordens de serviço, orçamentos e acordos de sócios.</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                            <b class="text-slate-900">🤫 Sigilo & Parcerias:</b>
+                            <p class="text-slate-500 mt-0.5">Acordos de confidencialidade (NDA), memorandos e termos de cooperação.</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                            <b class="text-slate-900">💰 Recibos & Quitações:</b>
+                            <p class="text-slate-500 mt-0.5">Comprovantes de pagamento, termos de entrega de obra e quitação geral.</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                            <b class="text-slate-900">👥 RH & Trabalhista:</b>
+                            <p class="text-slate-500 mt-0.5">Contratos PJ, aditivos, acordos de teletrabalho e termos de responsabilidade.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bloco 2: O QUE A LEI EXIGE CARTÓRIO OU ÓRGÃO ESPECÍFICO -->
+                <div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-black">!</span>
+                        <h4 class="font-extrabold text-slate-900 text-base">O que EXIGE Cartório / Fé Pública (Exceções Solenes):</h4>
+                    </div>
+                    <div class="space-y-2 text-xs">
+                        <div class="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-950">
+                            <b class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-car text-amber-600"></i> Transferência de Veículos no DETRAN (DUT/ATPV antigo):</b>
+                            <p class="text-amber-900 mt-1">O Código de Trânsito Brasileiro (Art. 134) exige reconhecimento de firma por autenticidade presencial (ou transferência digital exclusiva pelo app Carteira Digital de Trânsito / Gov.br com conta Prata/Ouro).</p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-950">
+                            <b class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-house-chimney text-amber-600"></i> Compra e Venda de Imóveis acima de 30 Salários Mínimos:</b>
+                            <p class="text-amber-900 mt-1">O Art. 108 do Código Civil exige Escritura Pública lavrada em Cartório de Notas para transmissão definitiva no Registro Geral de Imóveis (RGI). Promessas particulares de compra e venda podem ser assinadas aqui.</p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-950">
+                            <b class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-ring text-amber-600"></i> Atos de Direito de Família e Sucessões:</b>
+                            <p class="text-amber-900 mt-1">Casamento, divórcio solene com partilha de bens, adoção e testamentos públicos exigem solenidade judicial ou notarial.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bloco 3: COMO O 4USIGN PRO BLINDA O DOCUMENTO -->
+                <div class="bg-slate-900 text-white rounded-2xl p-5 text-xs space-y-3 shadow-inner border border-white/10">
+                    <div class="font-bold text-sm text-cyan-400 flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved"></i> Como o 4USign Pro Comprova a Validade na Justiça:
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-slate-300">
+                        <div>
+                            <b class="text-white">1. Hash SHA-256:</b>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Criptografia matemática que blinda o arquivo contra qualquer adulteração após a assinatura.</p>
+                        </div>
+                        <div>
+                            <b class="text-white">2. Trilha de IP & Hora:</b>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Registro do IP público, horário oficial e dados do signatário (Marco Civil da Internet).</p>
+                        </div>
+                        <div>
+                            <b class="text-white">3. Título Executivo:</b>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Com a assinatura das partes e 2 testemunhas, pode ser executado diretamente em juízo (Art. 784, III CPC).</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Rodapé do Modal -->
+            <div class="flex items-center justify-between gap-3 mt-6 pt-4 border-t border-slate-100">
+                <span class="text-xs text-slate-400 font-medium">4USign Pro • Legal Tech Brasileira</span>
+                <button type="button" onclick="fecharModalValidadeJuridica()" class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all cursor-pointer">
+                    Entendi, Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer Padrão 4USign Pro -->
     <footer class="bg-slate-900 text-slate-400 py-12 mt-20 border-t border-white/10">
         <div class="container mx-auto px-4 text-center">
@@ -1774,7 +1908,11 @@ if (strpos($client_ip, ',') !== false) {
                 <span class="text-cyan-400 font-bold text-xs px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/30">v2.0</span>
             </div>
             <p class="text-xs text-slate-400 max-w-md mx-auto mb-6">Plataforma integrada de geração de contratos com Inteligência Artificial e assinatura digital eletrônica em conformidade com a MP nº 2.200-2/2001 e Lei nº 14.063/2020.</p>
-            <div class="flex items-center justify-center gap-4 text-xs font-semibold text-slate-400 mb-4">
+            <div class="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-slate-400 mb-4">
+                <button type="button" onclick="abrirModalValidadeJuridica()" class="hover:text-cyan-400 transition-all cursor-pointer flex items-center gap-1.5 text-cyan-300">
+                    <i class="fa-solid fa-scale-balanced text-indigo-400"></i> Validade Jurídica
+                </button>
+                <span>•</span>
                 <a href="privacidade.php" class="hover:text-cyan-400 transition-all">Privacidade & LGPD</a>
                 <span>•</span>
                 <a href="termos.php" class="hover:text-cyan-400 transition-all">Termos de Uso</a>
@@ -2819,6 +2957,21 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
         $('html, body').animate({ scrollTop: 0 }, 300);
     }
     window.navegarPara = navegarPara;
+
+    // ==========================================
+    // CONTROLE DO MODAL DE VALIDADE JURÍDICA
+    // ==========================================
+    function abrirModalValidadeJuridica() {
+        $('#modalValidadeJuridica').removeClass('hidden');
+        $('body').addClass('overflow-hidden');
+    }
+    window.abrirModalValidadeJuridica = abrirModalValidadeJuridica;
+
+    function fecharModalValidadeJuridica() {
+        $('#modalValidadeJuridica').addClass('hidden');
+        $('body').removeClass('overflow-hidden');
+    }
+    window.fecharModalValidadeJuridica = fecharModalValidadeJuridica;
 
     $(document).ready(function() {
         const h = window.location.hash.replace('#', '');
