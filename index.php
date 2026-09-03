@@ -2330,7 +2330,7 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
         Swal.fire({
             icon: 'success',
             title: '✨ Dados de Teste Preenchidos!',
-            html: '<p class="text-sm text-slate-300">Todos os campos foram preenchidos com dados fictícios de exemplo.<br><br>👉 Agora clique em <b>"Pré-visualizar Modelo (Grátis)"</b> para ver o contrato gerado na hora levando em consideração todas as suas seleções!</p>',
+            html: '<p class="text-sm text-slate-300">Todos os campos foram preenchidos com dados fictícios de exemplo.<br><br>👉 Agora selecione o <b>Nível de Formalidade</b> desejado e clique em <b>"Pré-visualizar Modelo (Grátis)"</b> para ver a diferença imediata na redação!</p>',
             background: '#0f172a',
             color: '#fff',
             confirmButtonColor: '#6366f1'
@@ -2340,7 +2340,7 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
     $('#btnPreencherExemplo').click(preencherDadosFicticios);
 
     // ==========================================
-    // GERADOR DE PRÉVIA DINÂMICA COMPLETA (OFFLINE / SEM CRÉDITOS)
+    // GERADOR DE PRÉVIA DINÂMICA COMPLETA COM OS 4 NÍVEIS DE FORMALIDADE
     // ==========================================
     function gerarPreviaOffline() {
         const tipoSelect = $('#tipo_contrato').val();
@@ -2375,10 +2375,10 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
         const dataInicio = $('#data_inicio').val() ? formatDate($('#data_inicio').val()) : 'data de sua assinatura';
         const terminoTipo = $('#data_termino_tipo').val();
         let vigenciaTxt = `a contar de ${dataInicio}`;
-        if (terminoTipo === 'meses') vigenciaTxt = `pelo prazo determinado de ${$('#meses_vigencia').val() || '12'} meses, com início em ${dataInicio}`;
+        if (terminoTipo === 'meses') vigenciaTxt = `pelo prazo de ${$('#meses_vigencia').val() || '12'} meses, iniciando em ${dataInicio}`;
         else if (terminoTipo === 'indeterminado') vigenciaTxt = `por prazo indeterminado, com início em ${dataInicio}`;
-        else if (terminoTipo === 'conclusao_objeto') vigenciaTxt = `até a conclusão definitiva do objeto avençado, com início em ${dataInicio}`;
-        else if ($('#data_termino').val()) vigenciaTxt = `com início em ${dataInicio} e término improrrogável em ${formatDate($('#data_termino').val())}`;
+        else if (terminoTipo === 'conclusao_objeto') vigenciaTxt = `até a conclusão definitiva dos serviços, com início em ${dataInicio}`;
+        else if ($('#data_termino').val()) vigenciaTxt = `iniciando em ${dataInicio} e finalizando em ${formatDate($('#data_termino').val())}`;
 
         const foroCidade = $('#cidade_foro').val() || 'São Paulo';
         const foroUf = ($('#estado_foro').val() || 'SP').toUpperCase();
@@ -2386,80 +2386,253 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
 
         let documento = '';
 
-        // 1. RESUMO EXECUTIVO (Se selecionado)
+        // 1. RESUMO EXECUTIVO (Se marcado)
         if ($('#opt_resumo_executivo').is(':checked')) {
             documento += `========================================================================
-                      RESUMO EXECUTIVO DO DOCUMENTO
+                      QUADRO RESUMO EXECUTIVO
 ========================================================================
-• TIPO DE DOCUMENTO: ${tipo.toUpperCase()}
+• INSTRUMENTO: ${tipo.toUpperCase()}
+• NÍVEL DE FORMALIDADE: ${formalidade.toUpperCase().replace('_', ' ')}
 • CONTRATANTE: ${cNome} (${cTipoPessoa === 'juridica' ? 'CNPJ: ' : 'CPF: '}${cDoc})
 • CONTRATADO(A): ${pNome} (${pTipoPessoa === 'juridica' ? 'CNPJ: ' : 'CPF: '}${pDoc})
-• OBJETO PRINCIPAL: ${objeto}
+• OBJETO: ${objeto}
 • VALOR TOTAL: R$ ${valor} (${formaPgtoDesc})
 • VIGÊNCIA: ${vigenciaTxt}
-• FORO DE ELEIÇÃO: Comarca de ${foroCidade}/${foroUf}
+• FORO: Comarca de ${foroCidade}/${foroUf}
 ========================================================================
 
 `;
         }
 
-        // 2. TÍTULO FORMAL
-        documento += `${tipo.toUpperCase()}
+        // ========================================================
+        // GERAÇÃO DIFERENCIADA POR NÍVEL DE FORMALIDADE
+        // ========================================================
+
+        if (formalidade === 'simples') {
+            // NÍVEL 1: SIMPLES (Direto, sem jargões arcaicos, objetivo)
+            documento += `ACORDO SIMPLIFICADO: ${tipo.toUpperCase()}
+
+`;
+            documento += `PARTES:
+`;
+            documento += `1. CONTRATANTE: ${cNome}, doc nº ${cDoc}, endereço: ${cEnd}.
+`;
+            documento += `2. CONTRATADO(A): ${pNome}, doc nº ${pDoc}, endereço: ${pEnd}.
+
+`;
+            documento += `As partes acima combinam e aceitam as seguintes condições simples:
 
 `;
 
-        // 3. PREÂMBULO
-        if (tipoDocFmt === 'procuracao') {
-            documento += `OUTORGANTE: ${cNome}, ${cNac}${cCivil}, ${cProf}${cRg}, inscrito(a) no CPF/CNPJ sob o nº ${cDoc}, residente e domiciliado(a) em ${cEnd}.
+            documento += `1. DO TRABALHO/OBJETO:
+${objeto}
 
 `;
-            documento += `OUTORGADO(A): ${pNome}, ${pNac}${pCivil}, ${pProf}${pRg}, inscrito(a) no CPF/CNPJ sob o nº ${pDoc}, residente e domiciliado(a) em ${pEnd}.
+            documento += `2. DO VALOR E PAGAMENTO:
+O valor total acertado é de R$ ${valor}, sendo pago da seguinte forma: ${formaPgtoDesc}.
 
 `;
-            documento += `PODERES E FINALIDADE:
-Por este instrumento particular, o(a) OUTORGANTE nomeia e constitui o(a) OUTORGADO(A) seu(sua) bastante procurador(a), conferindo-lhe amplos poderes para: ${objeto}.
-
-`;
-            
-            // Poderes específicos selecionados
-            const poderes = [];
-            $('.poder-checkbox:checked').each(function() {
-                poderes.push($(this).val() || $(this).next('span').text());
-            });
-            if (poderes.length > 0) {
-                documento += `PODERES ESPECÍFICOS OUTORGADOS:
-` + poderes.map((p, i) => `${i+1}. ${p};`).join('
-') + '
-
-';
-            }
-            documento += `O presente mandato vigorará ${vigenciaTxt}, sendo vedado o substabelecimento sem expressa autorização.
+            documento += `3. DO PRAZO:
+O trabalho será realizado ${vigenciaTxt}.
 
 `;
 
-        } else if (tipoDocFmt === 'declaracao') {
-            documento += `Eu, ${cNome}, ${cNac}${cCivil}, ${cProf}${cRg}, inscrito(a) no CPF sob o nº ${cDoc}, residente e domiciliado(a) em ${cEnd};
-
-`;
-            documento += `DECLARO para os devidos fins de direito, especialmente para ${$('#declaracao_finalidade').val() || objeto}, sob as penas da lei (Art. 299 do Código Penal Brasileiro), que as informações prestadas são a expressão estrita da verdade.
-
-`;
-            if ($('#declaracao_pena').length && $('#declaracao_pena').val()) {
-                documento += `Declaro estar ciente de que a falsidade na prestação destas informações me sujeitará às sanções cíveis, administrativas e criminais cabíveis.
+            if ($('#clausula_multa').is(':checked')) {
+                const perc = $('#multa_percentual').val() || '10%';
+                documento += `4. CANCELAMENTO E MULTA:
+Se alguma das partes desistir sem motivo justo, pagará multa de ${perc} sobre o valor do acordo.
 
 `;
             }
+            if ($('#clausula_confidencialidade').is(':checked')) {
+                documento += `5. SIGILO:
+As partes concordam em manter sigilo sobre todas as informações e dados compartilhados durante este trabalho.
+
+`;
+            }
+            if ($('#clausula_lgpd').is(':checked')) {
+                documento += `6. DADOS PESSOAIS:
+Os dados aqui informados serão usados apenas para a execução deste acordo, conforme a LGPD.
+
+`;
+            }
+
+            documento += `7. LOCAL E ACORDO:
+Para resolver qualquer dúvida, fica escolhida a cidade de ${foroCidade} - ${foroUf}.
+
+`;
+
+        } else if (formalidade === 'juridico_completo') {
+            // NÍVEL 4: JURÍDICO COMPLETO (Advocacia Corporativa, Considerandos, Arts. do CC, MP 2.200, Cláusulas Pro-Business)
+            documento += `INSTRUMENTO PARTICULAR DE ${tipo.toUpperCase()}
+
+`;
+
+            documento += `CONSIDERANDO QUE:
+`;
+            documento += `I - O(A) CONTRATANTE necessita da contratação de serviços técnicos especializados com elevado padrão de qualidade e governança;
+`;
+            documento += `II - O(A) CONTRATADO(A) declara possuir plena capacidade jurídica, técnica, operacional e profissional para a execução do objeto;
+`;
+            documento += `III - As partes celebram este pacto pautadas nos princípios da probidade, autonomia privada e da boa-fé objetiva, nos moldes do art. 422 do Código Civil Brasileiro;
+
+`;
+            documento += `RESOLVEM as partes celebrar o presente contrato mediante as seguintes estipulações:
+
+`;
+
+            documento += `CLÁUSULA PRIMEIRA - DA QUALIFICAÇÃO INTEGRAL DAS PARTES
+`;
+            if (cTipoPessoa === 'juridica') {
+                documento += `1.1. CONTRATANTE: ${cNome}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${cDoc}, com sede social estabelecida em ${cEnd}, neste ato regularmente representada na forma de seus atos constitutivos;
+`;
+            } else {
+                documento += `1.1. CONTRATANTE: ${cNome}, ${cNac}${cCivil}, ${cProf}${cRg}, inscrito(a) no CPF sob o nº ${cDoc}, residente e domiciliado(a) em ${cEnd};
+`;
+            }
+            if (pTipoPessoa === 'juridica') {
+                documento += `1.2. CONTRATADO(A): ${pNome}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${pDoc}, com sede em ${pEnd}, neste ato representada por seus administradores legais;
+`;
+            } else {
+                documento += `1.2. CONTRATADO(A): ${pNome}, ${pNac}${pCivil}, ${pProf}${pRg}, inscrito(a) no CPF sob o nº ${pDoc}, residente e domiciliado(a) em ${pEnd}.
+`;
+            }
+            documento += `
+`;
+
+            documento += `CLÁUSULA SEGUNDA - DO OBJETO E ESCOPO EXECUTIVO
+`;
+            documento += `2.1. Constitui objeto deste contrato: ${objeto}.
+`;
+            documento += `§ 1º. Os serviços deverão ser prestados com estrita observância das melhores práticas vigentes no mercado, normas regulamentadoras e parâmetros técnicos aplicáveis.
+`;
+            if (tipo.includes('Obra') || tipo.includes('Engenharia')) {
+                documento += `§ 2º. É imperativo o atendimento às normas ABNT e a formalização da correspondente ART/RRT perante o conselho profissional competente (CREA/CAU).
+`;
+            } else {
+                documento += `§ 2º. Quaisquer alterações no escopo ou entregáveis dependerão de prévia aprovação expressa mediante Termo Aditivo.
+`;
+            }
+            documento += `
+`;
+
+            documento += `CLÁUSULA TERCEIRA - DA INEXISTÊNCIA DE VÍNCULO EMPREGATÍCIO E AUTONOMIA
+`;
+            documento += `3.1. As partes declaram para todos os efeitos que a relação jurídica ora celebrada é de natureza estritamente cível e comercial, inexistindo qualquer subordinação jurídica, pessoalidade mandatória ou vínculo de emprego (CLT), cabendo ao(à) CONTRATADO(A) a total responsabilidade por seus encargos sociais, previdenciários e fiscais.
+
+`;
+
+            documento += `CLÁUSULA QUARTA - DO PREÇO, FATURAMENTO E CONDIÇÕES DE PAGAMENTO
+`;
+            documento += `4.1. Como contraprestação líquida e certa, o(a) CONTRATANTE pagará ao(à) CONTRATADO(A) o valor total de R$ ${valor}.
+`;
+            documento += `§ 1º. A liquidação do valor pactuado ocorrerá da seguinte forma: ${formaPgtoDesc}.
+`;
+            if ($('#clausula_reajuste').is(':checked')) {
+                const ind = $('#indice_reajuste').val() || 'IPCA (IBGE)';
+                documento += `§ 2º. Os valores sofrerão reajuste automático anual ou em periodicidade mínima legalmente permitida pela variação acumulada do índice ${ind}.
+`;
+            }
+            documento += `
+`;
+
+            documento += `CLÁUSULA QUINTA - DO PRAZO DE VIGÊNCIA E CRONOGRAMA
+`;
+            documento += `5.1. O presente instrumento vigerá ${vigenciaTxt}.
+`;
+            documento += `§ 1º. O cronograma executivo somente poderá ser prorrogado mediante justificativa técnica devidamente aceita por escrito pelo(a) CONTRATANTE.
+
+`;
+
+            if ($('#clausula_multa').is(':checked')) {
+                const perc = $('#multa_percentual').val() || '10% (dez por cento)';
+                const fixo = $('#multa_valor_fixo').val() ? ` ou R$ ${$('#multa_valor_fixo').val()}` : '';
+                documento += `CLÁUSULA SEXTA - DA CLÁUSULA PENAL E INDENIZAÇÃO
+`;
+                documento += `6.1. O inadimplemento total ou parcial de qualquer obrigação sujeitará a parte infratora à multa cominatória compensatória de ${perc}${fixo}, calculada sobre o valor total deste contrato, sem prejuízo da apuração e cobrança suplementar de perdas e danos, lucros cessantes e honorários advocatícios sucumbenciais (arts. 408 e seguintes do Código Civil).
+
+`;
+            }
+
+            if ($('#clausula_rescisao').is(':checked')) {
+                const aviso = $('#aviso_previo').val() || '30 (trinta) dias';
+                documento += `CLÁUSULA SÉTIMA - DA EXTINÇÃO E RESCISÃO CONTRATUAL
+`;
+                documento += `7.1. O contrato poderá ser rescindido de pleno direito, independentemente de notificação judicial:
+`;
+                documento += `a) Por mútuo acordo entre as partes;
+`;
+                documento += `b) Por descumprimento insanável de cláusula contratual após decurso de prazo de 5 (cinco) dias úteis de notificação prévia;
+`;
+                documento += `c) Por decretação de insolvência, recuperação judicial ou falência.
+`;
+                documento += `7.2. A resilição unilateral imotivada exigirá denúncia prévia e expressa com antecedência de ${aviso}.
+
+`;
+            }
+
+            if ($('#clausula_confidencialidade').is(':checked')) {
+                documento += `CLÁUSULA OITAVA - DO SIGILO, CONFIDENCIALIDADE E SEGREDO INDUSTRIAL (NDA)
+`;
+                documento += `8.1. Todas as informações, bancos de dados, metodologias, segredos de negócio e documentos trafegados entre as partes são de caráter estritamente confidencial, obrigando-se as partes, seus prepostos e terceiros por si contratados a não divulgá-los sem anuência expressa, sob pena de responsabilização civil e criminal, perdurando dita obrigação por 5 (cinco) anos após o término deste instrumento.
+
+`;
+            }
+
+            if ($('#clausula_propriedade_intelectual').is(':checked')) {
+                documento += `CLÁUSULA NONA - DA PROPRIEDADE INTELECTUAL E DIREITOS AUTORAIS
+`;
+                documento += `9.1. Toda e qualquer propriedade intelectual, código-fonte, obra, desenho, modelo ou criação originada sob demanda na vigência deste contrato é de titularidade exclusiva do(a) CONTRATANTE após a regular liquidação financeira.
+
+`;
+            }
+
+            if ($('#clausula_lgpd').is(':checked')) {
+                documento += `CLÁUSULA DÉCIMA - DA PROTEÇÃO DE DADOS PESSOAIS (LGPD - LEI Nº 13.709/2018)
+`;
+                documento += `10.1. As partes comprometem-se a adotar todas as medidas técnicas e administrativas aptas a proteger os dados pessoais contra acessos não autorizados e eventos ilícitos, atuando em estrito alinhamento aos preceitos da LGPD.
+
+`;
+            }
+
+            if ($('#instrucoes_ia').val() && $('#instrucoes_ia').val().trim()) {
+                documento += `CLÁUSULA DÉCIMA PRIMEIRA - DAS DISPOSIÇÕES ESPECIAIS PACTUADAS
+`;
+                documento += `11.1. As partes acordam expressamente as seguintes condições particulares:
+${$('#instrucoes_ia').val().trim()}
+
+`;
+            }
+
+            documento += `CLÁUSULA DÉCIMA SEGUNDA - DA NÃO-NOVAÇÃO, INTEGRALIDADE E SUCESSÃO
+`;
+            documento += `12.1. A tolerância de qualquer das partes quanto a eventuais infrações não importará em renúncia de direitos, novação ou precedente invocável.
+`;
+            documento += `12.2. O presente contrato obriga as partes, seus herdeiros e sucessores a qualquer título.
+`;
+            documento += `12.3. As partes reconhecem expressamente a validade e higidez jurídica das assinaturas eletrônicas e digitais apostas neste documento, em conformidade com o art. 10, § 2º da MP nº 2.200-2/2001 e Lei nº 14.063/2020.
+
+`;
+
+            documento += `CLÁUSULA DÉCIMA TERCEIRA - DO FORO DE ELEIÇÃO
+`;
+            documento += `13.1. Fica eleito o Foro da Comarca de ${foroCidade}, Estado de ${foroUf}, para dirimir quaisquer litígios oriundos do presente negócio jurídico, renunciando as partes a qualquer outro Foro, por mais privilegiado que seja.
+
+`;
 
         } else {
-            // CONTRATOS GERAIS, LOCAÇÃO, ENGENHARIA, COMPRA E VENDA, TI
+            // NÍVEIS 2 e 3: PADRÃO E DETALHADO (Estrutura Jurídica Equilibrada)
             const parte1Label = $('#label_parte1').text() || 'CONTRATANTE';
             const parte2Label = $('#label_parte2').text() || 'CONTRATADO(A)';
 
-            documento += `Pelo presente instrumento particular de ${tipo}, de um lado:
+            documento += `CONTRATO DE ${tipo.toUpperCase()}
+
+`;
+            documento += `Pelo presente instrumento particular, de um lado:
 
 `;
             if (cTipoPessoa === 'juridica') {
-                documento += `${parte1Label.toUpperCase()}: ${cNome}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${cDoc}, com sede estabelecida em ${cEnd}, neste ato representada na forma de seu Contrato/Estatuto Social;
+                documento += `${parte1Label.toUpperCase()}: ${cNome}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${cDoc}, com sede em ${cEnd}, neste ato representada na forma de seu Contrato Social;
 
 `;
             } else {
@@ -2472,7 +2645,7 @@ Por este instrumento particular, o(a) OUTORGANTE nomeia e constitui o(a) OUTORGA
 
 `;
             if (pTipoPessoa === 'juridica') {
-                documento += `${parte2Label.toUpperCase()}: ${pNome}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${pDoc}, com sede em ${pEnd}, neste ato representada na forma de seus atos constitutivos;
+                documento += `${parte2Label.toUpperCase()}: ${pNome}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${pDoc}, com sede em ${pEnd}, neste ato representada por seus representantes legais;
 
 `;
             } else {
@@ -2481,171 +2654,94 @@ Por este instrumento particular, o(a) OUTORGANTE nomeia e constitui o(a) OUTORGA
 `;
             }
 
-            documento += `Têm entre si, justo e reciprocamente contratado, o que se regerá pelas seguintes cláusulas e condições:
+            documento += `Têm entre si, justo e acordado, o presente contrato mediante as seguintes cláusulas:
 
 `;
 
-            let numClausula = 1;
-            const ordinais = ['PRIMEIRA', 'SEGUNDA', 'TERCEIRA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÉTIMA', 'OITAVA', 'NONA', 'DÉCIMA', 'DÉCIMA PRIMEIRA', 'DÉCIMA SEGUNDA', 'DÉCIMA TERCEIRA', 'DÉCIMA QUARTA', 'DÉCIMA QUINTA'];
-
-            // Cláusula Objeto
-            documento += `CLÁUSULA ${ordinais[numClausula-1]} - DO OBJETO
+            documento += `CLÁUSULA PRIMEIRA - DO OBJETO
 `;
-            documento += `${numClausula}.1. O presente instrumento tem por objeto: ${objeto}.
+            documento += `1.1. O presente instrumento tem por objeto: ${objeto}
 `;
-            if (tipo.includes('Obra') || tipo.includes('Engenharia')) {
-                documento += `${numClausula}.2. Os serviços técnicos serão executados em estrita conformidade com as normas da ABNT, exigências do CREA/CAU, projetos executivos e com o devido recolhimento da Anotação de Responsabilidade Técnica (ART/RRT).
-`;
-            } else {
-                documento += `${numClausula}.2. As atividades serão desenvolvidas com o mais alto rigor técnico, boa-fé e observância da legislação vigente.
+            if (formalidade === 'detalhado') {
+                documento += `1.2. Os serviços serão prestados em consonância com as especificações técnicas, padrões de qualidade e prazos estipulados entre as partes.
 `;
             }
-            numClausula++; documento += '
-';
+            documento += `
+`;
 
-            // Cláusula Obrigações
-            documento += `CLÁUSULA ${ordinais[numClausula-1]} - DAS OBRIGAÇÕES DAS PARTES
+            documento += `CLÁUSULA SEGUNDA - DAS OBRIGAÇÕES
 `;
-            documento += `${numClausula}.1. Obriga-se o(a) ${parte2Label.toUpperCase()} a executar os serviços descritos com zelo, perícia técnica, cumprindo rigorosamente os prazos e especificações acordadas.
+            documento += `2.1. O(A) ${parte2Label.toUpperCase()} compromete-se a executar os serviços com diligência, presteza técnica e zelo.
 `;
-            documento += `${numClausula}.2. Obriga-se o(a) ${parte1Label.toUpperCase()} a fornecer tempestivamente todas as informações, acessos e subsídios necessários à perfeita consecução do objeto, bem como efetuar os pagamentos ajustados.
-`;
-            numClausula++; documento += '
-';
+            documento += `2.2. O(A) ${parte1Label.toUpperCase()} compromete-se a fornecer todas as informações e recursos necessários, bem como efetuar os pagamentos acordados.
 
-            // Cláusula Preço e Pagamento
-            documento += `CLÁUSULA ${ordinais[numClausula-1]} - DO PREÇO E CONDIÇÕES DE PAGAMENTO
 `;
-            documento += `${numClausula}.1. Pelos serviços objeto deste instrumento, o(a) ${parte1Label.toUpperCase()} pagará ao(à) ${parte2Label.toUpperCase()} o valor total de R$ ${valor}.
-`;
-            documento += `${numClausula}.2. O pagamento será realizado da seguinte forma: ${formaPgtoDesc}.
-`;
-            if ($('#clausula_reajuste').is(':checked')) {
-                const indice = $('#indice_reajuste').val() || 'IPCA (IBGE)';
-                documento += `${numClausula}.3. Havendo prorrogação contratual ou decurso de 12 (doze) meses, os valores serão reajustados monetariamente pela variação positiva do índice ${indice}.
-`;
-            }
-            numClausula++; documento += '
-';
 
-            // Cláusula Prazo
-            documento += `CLÁUSULA ${ordinais[numClausula-1]} - DO PRAZO E VIGÊNCIA
+            documento += `CLÁUSULA TERCEIRA - DO PREÇO E FORMA DE PAGAMENTO
 `;
-            documento += `${numClausula}.1. O presente contrato vigorará ${vigenciaTxt}.
+            documento += `3.1. Pelos serviços contratados, o(a) ${parte1Label.toUpperCase()} pagará ao(à) ${parte2Label.toUpperCase()} o valor total de R$ ${valor}.
 `;
-            documento += `${numClausula}.2. Eventuais prorrogações ou alterações no escopo deverão ser formalizadas por meio de Termo Aditivo escrito e assinado por ambas as partes.
-`;
-            numClausula++; documento += '
-';
+            documento += `3.2. O pagamento será realizado da seguinte forma: ${formaPgtoDesc}.
 
-            // Cláusula Multa (Se marcada)
+`;
+
+            documento += `CLÁUSULA QUARTA - DO PRAZO E VIGÊNCIA
+`;
+            documento += `4.1. O presente contrato vigorará ${vigenciaTxt}.
+
+`;
+
             if ($('#clausula_multa').is(':checked')) {
-                const perc = $('#multa_percentual').val() || '10% (dez por cento)';
-                const fixo = $('#multa_valor_fixo').val() ? ` ou o valor prefixado de R$ ${$('#multa_valor_fixo').val()}` : '';
-                documento += `CLÁUSULA ${ordinais[numClausula-1]} - DA MULTA POR DESCUMPRIMENTO
+                const perc = $('#multa_percentual').val() || '10%';
+                documento += `CLÁUSULA QUINTA - DA MULTA POR DESCUMPRIMENTO
 `;
-                documento += `${numClausula}.1. A infração a qualquer das cláusulas do presente instrumento sujeitará a parte inadimplente ao pagamento de multa cominatória de ${perc}${fixo}, incidente sobre o valor total do contrato, sem prejuízo da apuração de perdas e danos.
+                documento += `5.1. A infração a qualquer cláusula sujeitará a parte infratora ao pagamento de multa de ${perc} sobre o valor do contrato.
 
 `;
-                numClausula++;
             }
 
-            // Cláusula Rescisão (Se marcada)
             if ($('#clausula_rescisao').is(':checked')) {
-                const aviso = $('#aviso_previo').val() || '30 (trinta) dias';
-                documento += `CLÁUSULA ${ordinais[numClausula-1]} - DA RESCISÃO
+                const aviso = $('#aviso_previo').val() || '30 dias';
+                documento += `CLÁUSULA SEXTA - DA RESCISÃO
 `;
-                documento += `${numClausula}.1. O presente contrato poderá ser rescindido motivadamente por qualquer das partes em caso de inadimplemento contratual reiterado, falência, recuperação judicial ou dissolução societária.
-`;
-                documento += `${numClausula}.2. A rescisão imotivada poderá ocorrer mediante prévia notificação formal por escrito com antecedência mínima de ${aviso}.
+                documento += `6.1. O contrato poderá ser rescindido motivadamente por inadimplemento ou imotivadamente mediante aviso prévio por escrito de ${aviso}.
 
 `;
-                numClausula++;
             }
 
-            // Cláusula Confidencialidade (Se marcada)
             if ($('#clausula_confidencialidade').is(':checked')) {
-                documento += `CLÁUSULA ${ordinais[numClausula-1]} - DA CONFIDENCIALIDADE E SIGILO (NDA)
+                documento += `CLÁUSULA SÉTIMA - DA CONFIDENCIALIDADE (NDA)
 `;
-                documento += `${numClausula}.1. As partes obrigam-se a manter em estrito sigilo todas as informações técnicas, comerciais, estratégicas ou operacionais às quais tiverem acesso em razão deste contrato, pelo prazo de vigência e por mais 5 (cinco) anos após o seu término.
+                documento += `7.1. As partes comprometem-se a guardar sigilo absoluto sobre todas as informações confidenciais a que tiverem acesso.
 
 `;
-                numClausula++;
             }
 
-            // Cláusula Propriedade Intelectual (Se marcada)
-            if ($('#clausula_propriedade_intelectual').is(':checked')) {
-                documento += `CLÁUSULA ${ordinais[numClausula-1]} - DA PROPRIEDADE INTELECTUAL
-`;
-                documento += `${numClausula}.1. Salvo disposição expressa em contrário, os direitos patrimoniais sobre projetos, códigos, metodologias e criações desenvolvidas sob demanda em razão deste contrato pertencerão ao(à) ${parte1Label.toUpperCase()} após a quitação integral dos valores acordados.
-
-`;
-                numClausula++;
-            }
-
-            // Cláusula Não Concorrência (Se marcada)
-            if ($('#clausula_nao_concorrencia').is(':checked')) {
-                documento += `CLÁUSULA ${ordinais[numClausula-1]} - DA NÃO CONCORRÊNCIA E NÃO ALICIAMENTO
-`;
-                documento += `${numClausula}.1. As partes comprometem-se a não aliciar diretamente funcionários, colaboradores ou clientes exclusivos da outra parte durante o prazo de vigência deste instrumento.
-
-`;
-                numClausula++;
-            }
-
-            // Cláusula Garantia (Se marcada)
-            if ($('#clausula_garantia').is(':checked')) {
-                const garantiaPeriodo = $('#periodo_garantia').val() || '90 (noventa) dias';
-                documento += `CLÁUSULA ${ordinais[numClausula-1]} - DA GARANTIA DOS SERVIÇOS
-`;
-                documento += `${numClausula}.1. O(A) ${parte2Label.toUpperCase()} oferece garantia sobre a qualidade e solidez dos serviços executados pelo período de ${garantiaPeriodo}, obrigando-se a corrigir eventuais vícios ou falhas sem ônus adicional.
-
-`;
-                numClausula++;
-            }
-
-            // Cláusula Força Maior (Se marcada)
-            if ($('#clausula_forca_maior').is(':checked')) {
-                documento += `CLÁUSULA ${ordinais[numClausula-1]} - DO CASO FORTUITO E FORÇA MAIOR
-`;
-                documento += `${numClausula}.1. Nenhuma das partes será responsabilizada pelo descumprimento temporário de suas obrigações quando decorrente de eventos comprovados de caso fortuito ou força maior, na forma do Art. 393 do Código Civil Brasileiro.
-
-`;
-                numClausula++;
-            }
-
-            // Cláusula LGPD (Se marcada)
             if ($('#clausula_lgpd').is(':checked')) {
-                documento += `CLÁUSULA ${ordinais[numClausula-1]} - DA PROTEÇÃO DE DADOS PESSOAIS (LGPD)
+                documento += `CLÁUSULA OITAVA - DA LGPD
 `;
-                documento += `${numClausula}.1. As partes declaram cumprir integralmente a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), tratando eventuais dados pessoais exclusivamente para a execução do presente contrato, aplicando as melhores práticas de segurança da informação.
+                documento += `8.1. As partes declaram estar em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
 
 `;
-                numClausula++;
             }
 
-            // Instruções Adicionais digitadas pelo usuário (Se houver)
             if ($('#instrucoes_ia').val() && $('#instrucoes_ia').val().trim()) {
-                documento += `CLÁUSULA ${ordinais[numClausula-1]} - DAS CONDIÇÕES PARTICULARES E ESPECÍFICAS
+                documento += `CLÁUSULA NONA - DAS CONDIÇÕES PARTICULARES
 `;
-                documento += `${numClausula}.1. As partes acordam expressamente as seguintes condições específicas adicionais:
-`;
-                documento += `${$('#instrucoes_ia').val().trim()}
+                documento += `9.1. ${$('#instrucoes_ia').val().trim()}
 
 `;
-                numClausula++;
             }
 
-            // Cláusula Foro
-            documento += `CLÁUSULA ${ordinais[numClausula-1]} - DO FORO DE ELEIÇÃO
+            documento += `CLÁUSULA DÉCIMA - DO FORO
 `;
-            documento += `${numClausula}.1. Para dirimir quaisquer dúvidas ou litígios decorrentes da interpretação ou execução deste instrumento, as partes elegem expressamente o Foro da Comarca de ${foroCidade}/${foroUf}, com renúncia a qualquer outro, por mais privilegiado que seja.
+            documento += `10.1. Para dirimir quaisquer litígios decorrentes deste contrato, as partes elegem o Foro da Comarca de ${foroCidade}/${foroUf}.
 
 `;
         }
 
-        // 4. FECHAMENTO & ASSINATURAS
-        documento += `E, por estarem assim plenamente ajustadas e contratadas, as partes firmam o presente instrumento em 2 (duas) vias de igual teor e forma, perante as 2 (duas) testemunhas abaixo nomeadas e qualificadas.
+        // FECHAMENTO & ASSINATURAS
+        documento += `E, por estarem assim justas e contratadas, assinam o presente instrumento em 2 (duas) vias de igual teor e forma, na presença de 2 (duas) testemunhas.
 
 `;
         documento += `${foroCidade} - ${foroUf}, ${dataExtenso}.
@@ -2718,10 +2814,12 @@ Por este instrumento particular, o(a) OUTORGANTE nomeia e constitui o(a) OUTORGA
 
         $('html, body').animate({ scrollTop: $('#resultadoContainer').offset().top - 100 }, 500);
 
+        const formLabel = formalidade === 'juridico_completo' ? 'Jurídico Completo (Advocacia)' : formalidade === 'simples' ? 'Simples & Direto' : formalidade === 'detalhado' ? 'Detalhado com Parágrafos' : 'Padrão Comercial';
+
         Swal.fire({
             icon: 'info',
-            title: '⚡ Pré-visualização Personalizada Gerada!',
-            html: `<p class="text-sm text-slate-300">O modelo incorporou <b>todas as suas opções selecionadas</b> (cláusulas, valores, partes e formalidade) sem gastar nenhum crédito de IA!<br><br>Você já pode testar <b>"Assinar Digitalmente"</b> e <b>"Baixar PDF Jurídico"</b>.</p>`,
+            title: `⚡ Modelo [${formLabel}] Gerado!`,
+            html: `<p class="text-sm text-slate-300">O contrato foi estruturado no nível <b>${formLabel}</b> sem gastar créditos de IA!<br><br>👉 Alterne o botão de <b>Nível de Formalidade</b> para ver como o texto muda de estilo e profundidade em tempo real!</p>`,
             background: '#0f172a',
             color: '#fff',
             confirmButtonColor: '#6366f1',
