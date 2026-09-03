@@ -1259,7 +1259,7 @@ $v = time();
                         <p class="text-xs text-slate-500">Desenhe a assinatura com o dedo ou mouse</p>
                     </div>
                 </div>
-                <button onclick="fecharModalAssinatura()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" id="btnFecharModalAssinaturaX" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div class="mb-4">
@@ -1277,14 +1277,15 @@ $v = time();
             </div>
 
             <div class="flex items-center justify-between gap-3">
-                <button type="button" onclick="limparAssinatura()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold">
+                <button type="button" id="btnLimparAssinatura" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold">
                     <i class="fa-solid fa-eraser"></i> Limpar
                 </button>
-                <button type="button" onclick="aplicarAssinaturaNoContrato()" class="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-lg shadow-purple-600/30">
+                <button type="button" id="btnAplicarAssinatura" class="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-lg shadow-purple-600/30">
                     <i class="fa-solid fa-check"></i> Estampar no Contrato
                 </button>
             </div>
         </div>
+    </div>
 
     <!-- Footer Padrão 4U.IA.BR -->
     <footer class="bg-slate-900 text-slate-400 py-10 mt-16 border-t border-white/10">
@@ -2898,7 +2899,7 @@ ${$('#instrucoes_ia').val().trim()}
     $('#btnGerarPreviaOffline').click(gerarPreviaOffline);
 
     // ==========================================
-    // ASSINATURA DIGITAL CANVAS
+    // ASSINATURA DIGITAL CANVAS (FUNÇÕES GLOBAIS E EVENTOS)
     // ==========================================
     let sigCanvas = null;
     let sigCtx = null;
@@ -2956,13 +2957,14 @@ ${$('#instrucoes_ia').val().trim()}
 
     function abrirModalAssinatura() {
         const modal = document.getElementById('modalAssinatura');
-        modal.classList.remove('hidden');
+        if (modal) modal.classList.remove('hidden');
         if (!sigCanvas) initSignaturePad();
         limparAssinatura();
     }
 
     function fecharModalAssinatura() {
-        document.getElementById('modalAssinatura').classList.add('hidden');
+        const modal = document.getElementById('modalAssinatura');
+        if (modal) modal.classList.add('hidden');
     }
 
     function aplicarAssinaturaNoContrato() {
@@ -2989,7 +2991,16 @@ ${$('#instrucoes_ia').val().trim()}
         });
     }
 
+    // Exposição no Window e Binding jQuery para 100% de Compatibilidade
+    window.abrirModalAssinatura = abrirModalAssinatura;
+    window.fecharModalAssinatura = fecharModalAssinatura;
+    window.limparAssinatura = limparAssinatura;
+    window.aplicarAssinaturaNoContrato = aplicarAssinaturaNoContrato;
+
     $('#btnAbrirAssinaturaDigital').click(abrirModalAssinatura);
+    $('#btnFecharModalAssinaturaX').click(fecharModalAssinatura);
+    $('#btnLimparAssinatura').click(limparAssinatura);
+    $('#btnAplicarAssinatura').click(aplicarAssinaturaNoContrato);
 
     // ==========================================
     // EXPORTAÇÃO DE PDF JURÍDICO ABNT
