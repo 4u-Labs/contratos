@@ -686,8 +686,32 @@ if (strpos($client_ip, ',') !== false) {
                 </div>
             </div>
 
-            <!-- Seção de Garantia Jurídica & Criptografia -->
+            <!-- Seção de Garantia Jurídica & Transparência -->
             <div class="max-w-6xl mx-auto bg-slate-900 text-white rounded-3xl p-8 sm:p-10 border border-white/10 shadow-2xl relative overflow-hidden">
+                
+                <!-- Faixa de Transparência de Custos (Gratuidade vs IA) -->
+                <div class="mb-8 p-5 rounded-2xl bg-gradient-to-r from-emerald-950/70 via-slate-800/90 to-indigo-950/70 border border-emerald-500/30 flex flex-col lg:flex-row items-center justify-between gap-5">
+                    <div class="flex items-start sm:items-center gap-3.5 text-left w-full">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl shrink-0 border border-emerald-500/30 shadow-inner">
+                            <i class="fa-solid fa-gift"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-extrabold text-white text-sm sm:text-base">Assinatura Digital & Edição Manual:</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500 text-slate-950 tracking-wider shadow-sm">100% Gratuito</span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                                Assine qualquer PDF, edite minutas prontas, colete assinaturas por WhatsApp e exporte em PDF/DOCX <b>sem pagar nada e sem limites</b>. Apenas a <b>geração automática por IA</b> utiliza créditos Keep AI.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0 w-full lg:w-auto justify-start lg:justify-end">
+                        <span class="text-[11px] font-semibold text-slate-300 px-3.5 py-2 rounded-xl bg-slate-800/90 border border-purple-500/30 flex items-center gap-1.5 shadow-sm whitespace-nowrap">
+                            <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i> Redação IA com PIX acessível
+                        </span>
+                    </div>
+                </div>
+
                 <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
                     <div class="space-y-2">
                         <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg mx-auto md:mx-0">
@@ -1970,7 +1994,11 @@ if (strpos($client_ip, ',') !== false) {
                 <span class="font-extrabold text-white text-lg">4USign Pro</span>
                 <span class="text-cyan-400 font-bold text-xs px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/30">v2.0</span>
             </div>
-            <p class="text-xs text-slate-400 max-w-md mx-auto mb-6">Plataforma integrada de geração de contratos com Inteligência Artificial e assinatura digital eletrônica em conformidade com a MP nº 2.200-2/2001 e Lei nº 14.063/2020.</p>
+            <p class="text-xs text-slate-400 max-w-lg mx-auto mb-3">Plataforma integrada de assinatura digital <b>100% gratuita</b> (DocuSign Style com Retenção Zero) e gerador de minutas jurídicas com Inteligência Artificial em conformidade com a MP nº 2.200-2/2001 e Lei nº 14.063/2020.</p>
+            <p class="text-[11px] text-emerald-400/90 font-medium mb-6 flex items-center justify-center gap-2 flex-wrap">
+                <span class="bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-full"><i class="fa-solid fa-gift mr-1"></i> Assinador de PDFs & Edição: <b>100% Grátis</b></span>
+                <span class="bg-purple-950/60 border border-purple-500/30 px-2.5 py-1 rounded-full text-purple-300"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Redação por IA: <b>Créditos Keep AI</b></span>
+            </p>
             <div class="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-slate-400 mb-4">
                 <button type="button" onclick="abrirModalValidadeJuridica()" class="hover:text-cyan-400 transition-all cursor-pointer flex items-center gap-1.5 text-cyan-300">
                     <i class="fa-solid fa-scale-balanced text-indigo-400"></i> Validade Jurídica
