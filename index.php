@@ -1534,8 +1534,10 @@ if (strpos($client_ip, ',') !== false) {
                     </div>
                 </div>
 
-                <div id="pdfDropzone" class="dropzone-box p-8 sm:p-12 text-center" onclick="$('#inputPdfFile').click()">
-                    <input type="file" id="inputPdfFile" accept="application/pdf" class="hidden" />
+                <!-- Input de arquivo invisível fora do dropzone para evitar recursão de cliques -->
+                <input type="file" id="inputPdfFile" accept="application/pdf" class="hidden" />
+
+                <div id="pdfDropzone" class="dropzone-box p-8 sm:p-12 text-center cursor-pointer">
                     <div class="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl mx-auto mb-4">
                         <i class="fa-solid fa-file-pdf"></i>
                     </div>
@@ -1554,7 +1556,7 @@ if (strpos($client_ip, ',') !== false) {
                             <div id="pdfInfoTamanho" class="text-xs text-slate-500">Documento PDF Pronto para Coleta de Assinaturas</div>
                         </div>
                     </div>
-                    <button type="button" onclick="$('#inputPdfFile').click()" class="px-3.5 py-1.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-200 text-xs font-bold cursor-pointer">
+                    <button type="button" id="btnTrocarPdf" class="px-3.5 py-1.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-200 text-xs font-bold cursor-pointer">
                         Trocar Arquivo
                     </button>
                 </div>
@@ -2878,6 +2880,16 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
             });
         };
         reader.readAsArrayBuffer(file);
+    });
+
+    // Clique seguro no Dropzone e no botão Trocar Arquivo
+    $('#pdfDropzone, #btnTrocarPdf').on('click', function(e) {
+        e.preventDefault();
+        $('#inputPdfFile')[0].click();
+    });
+
+    $('#inputPdfFile').on('click', function(e) {
+        e.stopPropagation();
     });
 
     // Drag and Drop
