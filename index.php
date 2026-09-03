@@ -2726,7 +2726,11 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
                 
                 $('#contratoGeradoTexto').val(data.textoContrato.trim());
                 $('#loadingIA').addClass('hidden');
-                $('#contratoGeradoTexto, #acoesResultado').removeClass('hidden');
+                $('#contratoPreviewVisual, #acoesResultado').removeClass('hidden');
+                $('#contratoGeradoTexto').addClass('hidden');
+                $('#tabModoVisual').removeClass('bg-slate-800 text-slate-300').addClass('bg-indigo-600 text-white shadow-md');
+                $('#tabModoTexto').removeClass('bg-indigo-600 text-white shadow-md').addClass('bg-slate-800 text-slate-300');
+                atualizarVisualizadorDocumento();
 
                 // Atualiza o saldo em tempo real
                 if (data.credits_remaining !== undefined) {
@@ -3807,6 +3811,9 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
     // ==========================================
     // RENDERIZADOR VISUAL DO DOCUMENTO (COM ASSINATURAS VIVAS NO GERADOR)
     // ==========================================
+    // ==========================================
+    // RENDERIZADOR VISUAL DO DOCUMENTO (COM ASSINATURAS VIVAS NO GERADOR)
+    // ==========================================
     function atualizarVisualizadorDocumento() {
         const texto = $('#contratoGeradoTexto').val() || '';
         if (!texto) return;
@@ -3826,38 +3833,77 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
                 continue;
             }
             if (limpa.startsWith('===') || limpa.startsWith('---')) continue;
-            if (limpa.includes('QUADRO RESUMO EXECUTIVO')) {
-                linhasHtml += `<div class="bg-indigo-50/80 border border-indigo-200 rounded-xl p-4 my-4 font-sans text-xs text-indigo-950">
-                    <div class="font-bold text-sm mb-2 text-indigo-900 flex items-center gap-2"><i class="fa-solid fa-table-list"></i> ${limpa}</div>`;
-                continue;
-            }
-            if (limpa.startsWith('• ')) {
-                linhasHtml += `<div class="font-sans text-xs text-slate-700 py-0.5">${limpa}</div>`;
-                continue;
-            }
-            if (limpa.startsWith('CLÁUSULA') || limpa.startsWith('ACORDO SIMPLIFICADO') || limpa.startsWith('INSTRUMENTO PARTICULAR') || limpa.startsWith('CONTRATO DE')) {
-                linhasHtml += `<div class="font-bold text-slate-900 font-sans text-sm mt-5 mb-2 border-b border-slate-200 pb-1">${limpa}</div>`;
-                continue;
-            }
-            if (limpa.startsWith('CONSIDERANDO QUE:') || limpa.startsWith('PARTES:')) {
-                linhasHtml += `<div class="font-bold text-slate-800 font-sans text-xs mt-3 mb-1 uppercase tracking-wider">${limpa}</div>`;
-                continue;
-            }
-            if (limpa.startsWith('___') || limpa.startsWith('TESTEMUNHAS:') || limpa.startsWith('AUTENTICAÇÃO ELETRÔNICA')) {
+
+            // Remover markdown dos cabeçalhos para teste de padrão
+            let limpaSemMd = limpa.replace(/\*\*/g, '').replace(/^#+\s*/, '').trim();
+
+            // Interromper antes das assinaturas em texto puro geradas pela IA para não duplicar com as nossas caixas interativas
+            if (/^(\*{0,2})ASSINATURAS/i.test(limpa) || 
+                /^(\*{0,2})TESTEMUNHAS/i.test(limpa) || 
+                /^(\*{0,2})AUTENTICAÇÃO/i.test(limpa) || 
+                limpa.startsWith('___') || 
+                limpa.startsWith('1. ___') || 
+                limpa.startsWith('2. ___') ||
+                limpaSemMd.startsWith('Nome do Representante:') ||
+                limpaSemMd.startsWith('Hash de validação:') ||
+                limpaSemMd.startsWith('Data/Hora de assinatura')) {
                 break;
             }
-            linhasHtml += `<p class="mb-2 text-justify text-slate-800 leading-relaxed text-sm indent-6">${limpa}</p>`;
+
+            // Quadro Resumo Executivo
+            if (limpaSemMd.includes('QUADRO RESUMO EXECUTIVO')) {
+                linhasHtml += `<div class="bg-indigo-50/80 border border-indigo-200 rounded-xl p-4 my-4 font-sans text-xs text-indigo-950">
+                    <div class="font-bold text-sm mb-2 text-indigo-900 flex items-center gap-2"><i class="fa-solid fa-table-list"></i> ${limpaSemMd}</div>`;
+                continue;
+            }
+
+            // Título Principal
+            if (limpaSemMd.startsWith('CONTRATO DE') || limpaSemMd.startsWith('INSTRUMENTO PARTICULAR') || limpaSemMd.startsWith('DECLARAÇÃO')) {
+                linhasHtml += `<div class="font-extrabold text-slate-900 font-sans text-center text-base sm:text-lg uppercase tracking-wide my-5 border-b-2 border-slate-900/20 pb-2">${limpaSemMd}</div>`;
+                continue;
+            }
+
+            // Preâmbulo
+            if (limpaSemMd === 'PREÂMBULO' || limpaSemMd.startsWith('PREÂMBULO:')) {
+                linhasHtml += `<div class="font-bold text-slate-900 font-sans text-xs uppercase tracking-widest text-indigo-950 mt-4 mb-1">${limpaSemMd}</div>`;
+                continue;
+            }
+
+            // Cláusulas
+            if (/^CL[AÁ]USULA/i.test(limpaSemMd)) {
+                linhasHtml += `<div class="font-bold text-slate-900 font-sans text-sm mt-5 mb-2 border-b border-slate-200 pb-1">${limpaSemMd}</div>`;
+                continue;
+            }
+
+            // Local e Data
+            if (limpaSemMd === 'LOCAL E DATA' || limpaSemMd.startsWith('LOCAL E DATA:')) {
+                continue;
+            }
+            if (/^(São Paulo|Florianópolis|Rio de Janeiro|Brasília|[A-Z][a-z]+),?\s+\d+/i.test(limpaSemMd) || limpaSemMd.includes('dois mil e vinte')) {
+                linhasHtml += `<div class="text-right text-slate-700 font-medium my-4 italic text-sm">${limpaSemMd}</div>`;
+                continue;
+            }
+
+            if (limpa.startsWith('• ')) {
+                linhasHtml += `<div class="font-sans text-xs text-slate-700 py-0.5">${limpaSemMd}</div>`;
+                continue;
+            }
+
+            // Processar negrito markdown no meio dos parágrafos (**texto** -> <b>texto</b>)
+            let formatado = limpa.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+            linhasHtml += `<p class="mb-2 text-justify text-slate-800 leading-relaxed text-sm indent-6">${formatado}</p>`;
         }
 
         let assinaturasVisualHtml = `
-            <div id="blocoAssinaturasVisual" class="mt-10 pt-8 border-t-2 border-slate-200 font-sans">
+            <div id="blocoAssinaturasVisual" style="page-break-inside: avoid; break-inside: avoid;" class="mt-10 pt-8 border-t-2 border-slate-200 font-sans">
                 <div class="text-center font-bold text-xs uppercase tracking-widest text-slate-400 mb-6">
                     Assinatura das Partes & Autenticação Digital
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-6">
+                <div style="page-break-inside: avoid; break-inside: avoid;" class="grid grid-cols-1 md:grid-cols-2 gap-8 my-6">
                     <!-- Box Contratante -->
-                    <div class="border-2 ${assinaturasSalvas['contratante'] ? 'border-emerald-400 bg-emerald-50/40' : 'border-dashed border-slate-300 bg-slate-50/60'} rounded-2xl p-5 text-center flex flex-col justify-between shadow-sm transition-all">
+                    <div style="page-break-inside: avoid; break-inside: avoid;" class="border-2 ${assinaturasSalvas['contratante'] ? 'border-emerald-400 bg-emerald-50/40' : 'border-dashed border-slate-300 bg-slate-50/60'} rounded-2xl p-5 text-center flex flex-col justify-between shadow-sm transition-all">
                         <div class="min-h-[80px] flex items-center justify-center">
                             ${assinaturasSalvas['contratante'] ? 
                                 `<div>
@@ -3872,9 +3918,14 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
                                         </div>
                                     </div>
                                 </div>` :
-                                `<button type="button" onclick="abrirModalAssinaturaComTipo('contratante')" class="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-2 mx-auto">
-                                    <i class="fa-solid fa-signature"></i> Assinar como Contratante
-                                </button>`
+                                `<div>
+                                    <button type="button" onclick="abrirModalAssinaturaComTipo('contratante')" class="btn-sig-interactive text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-2 mx-auto">
+                                        <i class="fa-solid fa-signature"></i> Assinar como Contratante
+                                    </button>
+                                    <div class="sig-placeholder-line hidden" style="border-bottom: 1px solid #94a3b8; width: 220px; margin: 25px auto 5px;">
+                                        <div style="font-size: 8pt; color: #64748b; font-style: italic; padding-top: 4px;">(Assinatura Eletrônica do Contratante)</div>
+                                    </div>
+                                </div>`
                             }
                         </div>
                         <div class="border-t border-slate-300 pt-3 mt-3">
@@ -3884,7 +3935,7 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
                     </div>
 
                     <!-- Box Contratado -->
-                    <div class="border-2 ${assinaturasSalvas['contratado'] ? 'border-emerald-400 bg-emerald-50/40' : 'border-dashed border-slate-300 bg-slate-50/60'} rounded-2xl p-5 text-center flex flex-col justify-between shadow-sm transition-all">
+                    <div style="page-break-inside: avoid; break-inside: avoid;" class="border-2 ${assinaturasSalvas['contratado'] ? 'border-emerald-400 bg-emerald-50/40' : 'border-dashed border-slate-300 bg-slate-50/60'} rounded-2xl p-5 text-center flex flex-col justify-between shadow-sm transition-all">
                         <div class="min-h-[80px] flex items-center justify-center">
                             ${assinaturasSalvas['contratado'] ? 
                                 `<div>
@@ -3899,9 +3950,14 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
                                         </div>
                                     </div>
                                 </div>` :
-                                `<button type="button" onclick="abrirModalAssinaturaComTipo('contratado')" class="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-2 mx-auto">
-                                    <i class="fa-solid fa-signature"></i> Assinar como Contratado
-                                </button>`
+                                `<div>
+                                    <button type="button" onclick="abrirModalAssinaturaComTipo('contratado')" class="btn-sig-interactive text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-2 mx-auto">
+                                        <i class="fa-solid fa-signature"></i> Assinar como Contratado
+                                    </button>
+                                    <div class="sig-placeholder-line hidden" style="border-bottom: 1px solid #94a3b8; width: 220px; margin: 25px auto 5px;">
+                                        <div style="font-size: 8pt; color: #64748b; font-style: italic; padding-top: 4px;">(Assinatura Eletrônica do Contratado)</div>
+                                    </div>
+                                </div>`
                             }
                         </div>
                         <div class="border-t border-slate-300 pt-3 mt-3">
@@ -3911,7 +3967,7 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-6 text-center text-xs text-slate-500 mt-6 pt-4 border-t border-slate-100">
+                <div style="page-break-inside: avoid; break-inside: avoid;" class="grid grid-cols-2 gap-6 text-center text-xs text-slate-500 mt-6 pt-4 border-t border-slate-100">
                     <div>
                         <div class="border-b border-slate-300 pb-1 mb-1">____________________________________</div>
                         <div>TESTEMUNHA 1</div>
@@ -4240,8 +4296,13 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
                     }
                 }
             },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
+
+        // Temporariamente trocar os botões roxos por linhas elegantes para o PDF
+        $('.btn-sig-interactive').addClass('hidden');
+        $('.sig-placeholder-line').removeClass('hidden');
 
         try {
             await html2pdf().set(opt).from(element).save();
@@ -4265,6 +4326,9 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
                 confirmButtonColor: '#6366f1'
             });
         } finally {
+            // Restaurar botões interativos na tela
+            $('.btn-sig-interactive').removeClass('hidden');
+            $('.sig-placeholder-line').addClass('hidden');
             window.scrollTo(0, prevScrollY);
         }
     });
