@@ -1201,6 +1201,27 @@ $v = time();
                 </div>
 
                 <!-- Texto do Contrato -->
+                <!-- Abas de Visualização (Visual / Editor) -->
+                <div class="flex items-center justify-between gap-2 mb-4 border-b border-slate-200 pb-3">
+                    <div class="flex items-center gap-2">
+                        <button type="button" id="tabModoVisual" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-md transition-all flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-file-invoice"></i> <span>Documento Formatado & Assinaturas</span>
+                        </button>
+                        <button type="button" id="tabModoTexto" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-pen-to-square"></i> <span>Editor de Texto (Raw)</span>
+                        </button>
+                    </div>
+                    <div class="text-xs text-slate-500 font-medium hidden sm:flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i> Pronto para assinar e exportar
+                    </div>
+                </div>
+
+                <!-- 1. Visualizador Estilizado A4 com Assinaturas Vivas -->
+                <div id="contratoPreviewVisual" class="bg-white text-slate-900 rounded-2xl p-6 sm:p-10 shadow-inner border border-slate-200 font-serif leading-relaxed text-sm max-h-[600px] overflow-y-auto">
+                    <!-- Conteúdo com assinaturas renderizadas -->
+                </div>
+
+                <!-- 2. Textarea Editável -->
                 <textarea id="contratoGeradoTexto" class="hidden input-modern font-mono text-sm h-[500px]" placeholder="O contrato gerado aparecerá aqui..."></textarea>
 
                 <!-- Ações -->
@@ -1263,7 +1284,7 @@ $v = time();
             </div>
 
             <div class="mb-4">
-                <label class="label-modern">Quem está assinando?</label>
+                <label class="label-modern">Quem está assinando agora?</label>
                 <select id="signatario_tipo" class="input-modern py-2 text-sm">
                     <option value="contratante">1. Contratante</option>
                     <option value="contratado">2. Contratado</option>
@@ -2409,7 +2430,7 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
     $('#btnPreencherExemplo').click(preencherDadosFicticios);
 
     // ==========================================
-    // GERADOR DE PRÉVIA DINÂMICA COMPLETA COM OS 4 NÍVEIS DE FORMALIDADE
+    // GERADOR DE PRÉVIA DINÂMICA COMPLETA
     // ==========================================
     function gerarPreviaOffline() {
         const tipoSelect = $('#tipo_contrato').val();
@@ -2478,7 +2499,6 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
         // ========================================================
 
         if (formalidade === 'simples') {
-            // NÍVEL 1: SIMPLES (Direto, sem jargões arcaicos, objetivo)
             documento += `ACORDO SIMPLIFICADO: ${tipo.toUpperCase()}
 
 `;
@@ -2532,7 +2552,6 @@ Para resolver qualquer dúvida, fica escolhida a cidade de ${foroCidade} - ${for
 `;
 
         } else if (formalidade === 'juridico_completo') {
-            // NÍVEL 4: JURÍDICO COMPLETO (Advocacia Corporativa, Considerandos, Arts. do CC, MP 2.200, Cláusulas Pro-Business)
             documento += `INSTRUMENTO PARTICULAR DE ${tipo.toUpperCase()}
 
 `;
@@ -2690,7 +2709,6 @@ ${$('#instrucoes_ia').val().trim()}
 `;
 
         } else {
-            // NÍVEIS 2 e 3: PADRÃO E DETALHADO (Estrutura Jurídica Equilibrada)
             const parte1Label = $('#label_parte1').text() || 'CONTRATANTE';
             const parte2Label = $('#label_parte2').text() || 'CONTRATADO(A)';
 
@@ -2809,7 +2827,7 @@ ${$('#instrucoes_ia').val().trim()}
 `;
         }
 
-        // FECHAMENTO & ASSINATURAS
+        // FECHAMENTO & ASSINATURAS (Texto)
         documento += `E, por estarem assim justas e contratadas, assinam o presente instrumento em 2 (duas) vias de igual teor e forma, na presença de 2 (duas) testemunhas.
 
 `;
@@ -2878,8 +2896,11 @@ ${$('#instrucoes_ia').val().trim()}
 
         $('#resultadoContainer').removeClass('hidden');
         $('#loadingIA').addClass('hidden');
-        $('#contratoGeradoTexto').val(documento).removeClass('hidden');
+        $('#contratoGeradoTexto').val(documento);
         $('#acoesResultado').removeClass('hidden');
+
+        // Atualizar renderização visual formatada com as assinaturas vivas
+        atualizarVisualizadorDocumento();
 
         $('html, body').animate({ scrollTop: $('#resultadoContainer').offset().top - 100 }, 500);
 
@@ -2888,15 +2909,147 @@ ${$('#instrucoes_ia').val().trim()}
         Swal.fire({
             icon: 'info',
             title: `⚡ Modelo [${formLabel}] Gerado!`,
-            html: `<p class="text-sm text-slate-300">O contrato foi estruturado no nível <b>${formLabel}</b> sem gastar créditos de IA!<br><br>👉 Alterne o botão de <b>Nível de Formalidade</b> para ver como o texto muda de estilo e profundidade em tempo real!</p>`,
+            html: `<p class="text-sm text-slate-300">O contrato foi estruturado no nível <b>${formLabel}</b> sem gastar créditos de IA!<br><br>👉 Veja o documento formatado abaixo e clique em <b>"Assinar como Contratante"</b> para desenhar e ver a assinatura estampada na hora!</p>`,
             background: '#0f172a',
             color: '#fff',
             confirmButtonColor: '#6366f1',
-            timer: 3500
+            timer: 4000
         });
     }
 
     $('#btnGerarPreviaOffline').click(gerarPreviaOffline);
+
+    // ==========================================
+    // RENDERIZADOR VISUAL DO DOCUMENTO (COM ASSINATURAS VIVAS)
+    // ==========================================
+    function atualizarVisualizadorDocumento() {
+        const texto = $('#contratoGeradoTexto').val() || '';
+        if (!texto) return;
+
+        const nomeContratante = ($('#contratante_nome').val() || 'Contratante').toUpperCase();
+        const docContratante = $('#contratante_doc').val() || '';
+        const nomeContratado = ($('#contratado_nome').val() || 'Contratado(a)').toUpperCase();
+        const docContratado = $('#contratado_doc').val() || '';
+        const foroCidade = $('#cidade_foro').val() || 'São Paulo';
+        const foroUf = ($('#estado_foro').val() || 'SP').toUpperCase();
+        const dataExtenso = new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        let linhasHtml = '';
+        const linhas = texto.split('\n');
+
+        for (let l of linhas) {
+            let limpa = l.trim();
+            if (!limpa) {
+                linhasHtml += '<div class="h-3"></div>';
+                continue;
+            }
+            if (limpa.startsWith('===') || limpa.startsWith('---')) continue;
+            if (limpa.includes('QUADRO RESUMO EXECUTIVO')) {
+                linhasHtml += `<div class="bg-indigo-50/80 border border-indigo-200 rounded-xl p-4 my-4 font-sans text-xs text-indigo-950">
+                    <div class="font-bold text-sm mb-2 text-indigo-900 flex items-center gap-2"><i class="fa-solid fa-table-list"></i> ${limpa}</div>`;
+                continue;
+            }
+            if (limpa.startsWith('• ')) {
+                linhasHtml += `<div class="font-sans text-xs text-slate-700 py-0.5">${limpa}</div>`;
+                continue;
+            }
+            if (limpa.startsWith('CLÁUSULA') || limpa.startsWith('ACORDO SIMPLIFICADO') || limpa.startsWith('INSTRUMENTO PARTICULAR') || limpa.startsWith('CONTRATO DE')) {
+                linhasHtml += `<div class="font-bold text-slate-900 font-sans text-sm mt-5 mb-2 border-b border-slate-200 pb-1">${limpa}</div>`;
+                continue;
+            }
+            if (limpa.startsWith('CONSIDERANDO QUE:') || limpa.startsWith('PARTES:')) {
+                linhasHtml += `<div class="font-bold text-slate-800 font-sans text-xs mt-3 mb-1 uppercase tracking-wider">${limpa}</div>`;
+                continue;
+            }
+            if (limpa.startsWith('___') || limpa.startsWith('TESTEMUNHAS:') || limpa.startsWith('AUTENTICAÇÃO ELETRÔNICA')) {
+                break;
+            }
+            linhasHtml += `<p class="mb-2 text-justify text-slate-800 leading-relaxed text-sm indent-6">${limpa}</p>`;
+        }
+
+        let assinaturasVisualHtml = `
+            <div id="blocoAssinaturasVisual" class="mt-10 pt-8 border-t-2 border-slate-200 font-sans">
+                <div class="text-center font-bold text-xs uppercase tracking-widest text-slate-400 mb-6">
+                    Assinatura das Partes & Autenticação Digital
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-6">
+                    <!-- Box Contratante -->
+                    <div class="border-2 ${assinaturasSalvas['contratante'] ? 'border-emerald-400 bg-emerald-50/40' : 'border-dashed border-slate-300 bg-slate-50/60'} rounded-2xl p-5 text-center flex flex-col justify-between shadow-sm transition-all">
+                        <div class="min-h-[80px] flex items-center justify-center">
+                            ${assinaturasSalvas['contratante'] ? 
+                                `<div>
+                                    <img src="${assinaturasSalvas['contratante'].dataUrl}" class="h-16 mx-auto mb-1 object-contain drop-shadow" />
+                                    <div class="text-[10px] text-emerald-800 font-mono font-bold bg-emerald-100 py-1 px-3 rounded-lg border border-emerald-300 inline-block shadow-xs">
+                                        <i class="fa-solid fa-shield-halved text-emerald-600"></i> Assinado digitalmente • ${assinaturasSalvas['contratante'].dataHora}<br>
+                                        <span class="text-[9px] text-slate-500">Hash: ${assinaturasSalvas['contratante'].hash}</span>
+                                    </div>
+                                </div>` :
+                                `<button type="button" onclick="abrirModalAssinaturaComTipo('contratante')" class="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-2 mx-auto">
+                                    <i class="fa-solid fa-signature"></i> Assinar como Contratante
+                                </button>`
+                            }
+                        </div>
+                        <div class="border-t border-slate-300 pt-3 mt-3">
+                            <div class="font-bold text-xs text-slate-800">${nomeContratante}</div>
+                            <div class="text-[11px] text-slate-500 font-medium uppercase tracking-wider">CONTRATANTE ${docContratante ? '• ' + docContratante : ''}</div>
+                        </div>
+                    </div>
+
+                    <!-- Box Contratado -->
+                    <div class="border-2 ${assinaturasSalvas['contratado'] ? 'border-emerald-400 bg-emerald-50/40' : 'border-dashed border-slate-300 bg-slate-50/60'} rounded-2xl p-5 text-center flex flex-col justify-between shadow-sm transition-all">
+                        <div class="min-h-[80px] flex items-center justify-center">
+                            ${assinaturasSalvas['contratado'] ? 
+                                `<div>
+                                    <img src="${assinaturasSalvas['contratado'].dataUrl}" class="h-16 mx-auto mb-1 object-contain drop-shadow" />
+                                    <div class="text-[10px] text-emerald-800 font-mono font-bold bg-emerald-100 py-1 px-3 rounded-lg border border-emerald-300 inline-block shadow-xs">
+                                        <i class="fa-solid fa-shield-halved text-emerald-600"></i> Assinado digitalmente • ${assinaturasSalvas['contratado'].dataHora}<br>
+                                        <span class="text-[9px] text-slate-500">Hash: ${assinaturasSalvas['contratado'].hash}</span>
+                                    </div>
+                                </div>` :
+                                `<button type="button" onclick="abrirModalAssinaturaComTipo('contratado')" class="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-2 mx-auto">
+                                    <i class="fa-solid fa-signature"></i> Assinar como Contratado
+                                </button>`
+                            }
+                        </div>
+                        <div class="border-t border-slate-300 pt-3 mt-3">
+                            <div class="font-bold text-xs text-slate-800">${nomeContratado}</div>
+                            <div class="text-[11px] text-slate-500 font-medium uppercase tracking-wider">CONTRATADO(A) ${docContratado ? '• ' + docContratado : ''}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6 text-center text-xs text-slate-500 mt-6 pt-4 border-t border-slate-100">
+                    <div>
+                        <div class="border-b border-slate-300 pb-1 mb-1">____________________________________</div>
+                        <div>TESTEMUNHA 1</div>
+                    </div>
+                    <div>
+                        <div class="border-b border-slate-300 pb-1 mb-1">____________________________________</div>
+                        <div>TESTEMUNHA 2</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        $('#contratoPreviewVisual').html(linhasHtml + assinaturasVisualHtml);
+    }
+
+    // Alternar entre modo Visual Formatado e Editor de Texto
+    $('#tabModoVisual').click(function() {
+        $(this).removeClass('bg-slate-100 text-slate-700 hover:bg-slate-200').addClass('bg-indigo-600 text-white shadow-md');
+        $('#tabModoTexto').removeClass('bg-indigo-600 text-white shadow-md').addClass('bg-slate-100 text-slate-700 hover:bg-slate-200');
+        $('#contratoGeradoTexto').addClass('hidden');
+        $('#contratoPreviewVisual').removeClass('hidden');
+        atualizarVisualizadorDocumento();
+    });
+
+    $('#tabModoTexto').click(function() {
+        $(this).removeClass('bg-slate-100 text-slate-700 hover:bg-slate-200').addClass('bg-indigo-600 text-white shadow-md');
+        $('#tabModoVisual').removeClass('bg-indigo-600 text-white shadow-md').addClass('bg-slate-100 text-slate-700 hover:bg-slate-200');
+        $('#contratoPreviewVisual').addClass('hidden');
+        $('#contratoGeradoTexto').removeClass('hidden');
+    });
 
     // ==========================================
     // ASSINATURA DIGITAL CANVAS (FUNÇÕES GLOBAIS E EVENTOS)
@@ -2962,6 +3115,11 @@ ${$('#instrucoes_ia').val().trim()}
         limparAssinatura();
     }
 
+    function abrirModalAssinaturaComTipo(tipo) {
+        $('#signatario_tipo').val(tipo);
+        abrirModalAssinatura();
+    }
+
     function fecharModalAssinatura() {
         const modal = document.getElementById('modalAssinatura');
         if (modal) modal.classList.add('hidden');
@@ -2981,10 +3139,22 @@ ${$('#instrucoes_ia').val().trim()}
         };
 
         fecharModalAssinatura();
+
+        // 1. Atualizar a visualização na tela imediatamente
+        $('#tabModoVisual').click();
+        atualizarVisualizadorDocumento();
+
+        // 2. Animar scroll para as assinaturas estampadas
+        if ($('#blocoAssinaturasVisual').length) {
+            $('html, body').animate({ scrollTop: $('#blocoAssinaturasVisual').offset().top - 150 }, 600);
+        }
+
+        const labelTipo = tipo === 'contratante' ? 'Contratante' : tipo === 'contratado' ? 'Contratado' : 'Testemunha';
+
         Swal.fire({
             icon: 'success',
-            title: 'Assinatura Registrada!',
-            text: 'Assinatura vinculada com selo de integridade e horário. Ela será inserida no PDF oficial.',
+            title: '🎉 Assinatura Estampada!',
+            html: `<p class="text-sm text-slate-300">A assinatura do <b>${labelTipo}</b> foi inserida no documento com selo criptográfico SHA-256 e horário oficial!<br><br>👉 Agora você já pode clicar em <b>"Baixar PDF Jurídico"</b> para exportar o documento oficial assinado!</p>`,
             background: '#0f172a',
             color: '#fff',
             confirmButtonColor: '#6366f1'
@@ -2993,9 +3163,11 @@ ${$('#instrucoes_ia').val().trim()}
 
     // Exposição no Window e Binding jQuery para 100% de Compatibilidade
     window.abrirModalAssinatura = abrirModalAssinatura;
+    window.abrirModalAssinaturaComTipo = abrirModalAssinaturaComTipo;
     window.fecharModalAssinatura = fecharModalAssinatura;
     window.limparAssinatura = limparAssinatura;
     window.aplicarAssinaturaNoContrato = aplicarAssinaturaNoContrato;
+    window.atualizarVisualizadorDocumento = atualizarVisualizadorDocumento;
 
     $('#btnAbrirAssinaturaDigital').click(abrirModalAssinatura);
     $('#btnFecharModalAssinaturaX').click(fecharModalAssinatura);
