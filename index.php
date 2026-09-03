@@ -28,9 +28,15 @@ if (strpos($client_ip, ',') !== false) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Sacramento&family=Allura&display=swap" rel="stylesheet">
     
-    <!-- PDF Engines (html2pdf + pdf-lib para certificação forense) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- PDF.js para Renderização Visual de PDFs na Tela -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+    <!-- PDF-Lib para Gravação e Certificação Forense de Assinaturas -->
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <!-- HTML2PDF para exportação de minutas criadas com IA -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -472,7 +478,7 @@ if (strpos($client_ip, ',') !== false) {
 
         .dropzone-box {
             border: 2px dashed #818cf8;
-            border-radius: 20px;
+            border-radius: 24px;
             background: #f8fafc;
             transition: all 0.3s ease;
             cursor: pointer;
@@ -480,6 +486,18 @@ if (strpos($client_ip, ',') !== false) {
         .dropzone-box:hover, .dropzone-box.dragover {
             border-color: #6366f1;
             background: #eef2ff;
+        }
+
+        /* PDF Page Sheet */
+        .pdf-page-sheet {
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            overflow: hidden;
+            margin: 0 auto 24px auto;
+            position: relative;
+            max-width: 820px;
         }
 
     </style>
@@ -631,13 +649,13 @@ if (strpos($client_ip, ',') !== false) {
                             Assinar Documento PDF
                         </h2>
                         <p class="text-slate-600 text-sm sm:text-base leading-relaxed mb-6 font-medium">
-                            Já tem um contrato, termo ou proposta em PDF? Faça upload, assine na hora com caligrafia personalizada ou envie o link seguro para o cliente assinar.
+                            Anexe qualquer contrato ou proposta em PDF. O documento abre na tela para você assinar com caligrafia personalizada e baixar ou enviar para o cliente assinar.
                         </p>
 
                         <div class="space-y-3 mb-8 text-xs sm:text-sm font-semibold text-slate-700">
                             <div class="flex items-center gap-2.5">
                                 <i class="fa-solid fa-circle-check text-cyan-600"></i>
-                                <span>Upload de qualquer arquivo PDF do seu computador ou celular</span>
+                                <span>Visualizador de páginas reais integrado no navegador</span>
                             </div>
                             <div class="flex items-center gap-2.5">
                                 <i class="fa-solid fa-circle-check text-cyan-600"></i>
@@ -645,17 +663,17 @@ if (strpos($client_ip, ',') !== false) {
                             </div>
                             <div class="flex items-center gap-2.5">
                                 <i class="fa-solid fa-circle-check text-cyan-600"></i>
-                                <span>Envio de Link Direto via WhatsApp para a outra parte</span>
+                                <span>Gravação direta no arquivo PDF com selo de integridade</span>
                             </div>
                             <div class="flex items-center gap-2.5">
                                 <i class="fa-solid fa-circle-check text-cyan-600"></i>
-                                <span>Selo Forense com IP, Data/Hora e Hash Criptográfico</span>
+                                <span>Envio imediato de link de assinatura via WhatsApp</span>
                             </div>
                         </div>
                     </div>
 
                     <button type="button" onclick="navegarPara('assinar')" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-bold text-base shadow-xl shadow-cyan-600/25 flex items-center justify-center gap-3 transition-all cursor-pointer group-hover:scale-[1.01]">
-                        <span>Subir Documento para Assinar</span>
+                        <span>Abrir Documento para Assinar</span>
                         <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
                     </button>
                 </div>
@@ -670,7 +688,7 @@ if (strpos($client_ip, ',') !== false) {
                         </div>
                         <h4 class="font-bold text-base text-white">Validade Jurídica Plena</h4>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            Amparado pela <b>MP nº 2.200-2/2001</b> e <b>Lei Federal nº 14.063/2020</b>, com força probatória extrajudicial (Art. 784, III do CPC).
+                            Amparado pela <b>MP nº 2.200-2/2001</b> e <b>Lei Federal nº 14.063/2020</b>, com força executiva extrajudicial (Art. 784, III do CPC).
                         </p>
                     </div>
 
@@ -680,7 +698,7 @@ if (strpos($client_ip, ',') !== false) {
                         </div>
                         <h4 class="font-bold text-base text-white">Trilha de Auditoria Forense</h4>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            Registro de <b>Endereço IP público</b>, carimbo de data e hora exatos e Hash criptográfico SHA-256 inviolável (Marco Civil da Internet).
+                            Registro do <b>Endereço IP público</b>, carimbo de data/hora oficial e Hash criptográfico SHA-256 inviolável (Marco Civil da Internet).
                         </p>
                     </div>
 
@@ -690,7 +708,7 @@ if (strpos($client_ip, ',') !== false) {
                         </div>
                         <h4 class="font-bold text-base text-white">Privacidade & Retenção Zero</h4>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            Seus documentos são processados diretamente no seu dispositivo, sem envio para servidores de terceiros (Conformidade com a LGPD).
+                            Seus documentos são processados diretamente no seu dispositivo, sem compartilhamento com terceiros (Conformidade com a LGPD).
                         </p>
                     </div>
                 </div>
@@ -1468,7 +1486,7 @@ if (strpos($client_ip, ',') !== false) {
                         <i class="fa-solid fa-file-pdf"></i> Baixar PDF Jurídico
                     </button>
                     <button type="button" id="btnTransferirParaAssinador" class="action-btn bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white shadow-lg shadow-cyan-600/30 cursor-pointer">
-                        <i class="fa-solid fa-paper-plane"></i> Enviar para Central de Assinatura
+                        <i class="fa-solid fa-paper-plane"></i> Abrir no Assinador de PDF
                     </button>
                     <button id="btnCopiarConteudoContrato" class="action-btn bg-slate-100 hover:bg-slate-200 text-slate-700">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
@@ -1506,9 +1524,9 @@ if (strpos($client_ip, ',') !== false) {
         <!-- ========================================================= -->
         <!-- 3. VIEW: CENTRAL DE ASSINATURA DIGITAL (ESTILO DOCUSIGN)  -->
         <!-- ========================================================= -->
-        <div id="viewAssinador" class="hidden space-y-8 max-w-6xl mx-auto">
+        <div id="viewAssinador" class="hidden space-y-6 max-w-6xl mx-auto">
             
-            <!-- Barra Superior do Assinador -->
+            <!-- Barra Superior de Navegação -->
             <div class="flex items-center justify-between gap-4 bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
                 <button type="button" onclick="navegarPara('hub')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-arrow-left"></i> <span>Voltar ao Hub</span>
@@ -1522,124 +1540,105 @@ if (strpos($client_ip, ',') !== false) {
                 </button>
             </div>
 
-            <!-- Card de Upload de PDF -->
-            <div class="card-modern p-8 sm:p-10 shadow-xl border-slate-200">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="icon-box icon-box-blue">
-                        <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-black text-slate-800">1. Selecionar Documento PDF</h3>
-                        <p class="text-sm text-slate-500">Suba qualquer contrato, proposta, termo ou recibo para assinar</p>
-                    </div>
-                </div>
-
-                <!-- Input de arquivo invisível fora do dropzone para evitar recursão de cliques -->
+            <!-- 1. ESTADO DE UPLOAD (QUANDO NENHUM PDF ESTÁ ABERTO) -->
+            <div id="pdfUploadState" class="card-modern p-8 sm:p-12 shadow-xl border-slate-200 text-center">
                 <input type="file" id="inputPdfFile" accept="application/pdf" class="hidden" />
 
-                <div id="pdfDropzone" class="dropzone-box p-8 sm:p-12 text-center cursor-pointer">
-                    <div class="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl mx-auto mb-4">
-                        <i class="fa-solid fa-file-pdf"></i>
+                <div class="max-w-xl mx-auto space-y-4">
+                    <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-cyan-500 to-indigo-600 text-white flex items-center justify-center text-3xl mx-auto shadow-xl shadow-cyan-500/25">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
                     </div>
-                    <h4 class="font-bold text-base text-slate-800 mb-1">Arraste seu arquivo PDF aqui ou clique para selecionar</h4>
-                    <p class="text-xs text-slate-500">Suporte a contratos de múltiplas páginas com retenção zero e total privacidade</p>
-                </div>
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight">1. Anexe o Documento para Abrir na Tela</h3>
+                    <p class="text-sm text-slate-600 font-medium">Suba qualquer contrato, proposta, procuração ou termo em PDF. O arquivo será aberto na tela com todas as páginas para você assinar e salvar ou enviar.</p>
 
-                <!-- Detalhes do Documento Selecionado -->
-                <div id="pdfDetalhesBox" class="hidden mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-lg">
+                    <div id="pdfDropzone" class="dropzone-box p-10 mt-6 text-center cursor-pointer">
+                        <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl mx-auto mb-3">
                             <i class="fa-solid fa-file-pdf"></i>
                         </div>
-                        <div>
-                            <div id="pdfNomeArquivo" class="font-bold text-sm text-slate-800 truncate max-w-xs sm:max-w-md">contrato.pdf</div>
-                            <div id="pdfInfoTamanho" class="text-xs text-slate-500">Documento PDF Pronto para Coleta de Assinaturas</div>
-                        </div>
+                        <h4 class="font-bold text-base text-slate-800 mb-1">Arraste seu arquivo PDF aqui ou clique para selecionar</h4>
+                        <p class="text-xs text-slate-400">Processamento em tela com máxima segurança e privacidade</p>
                     </div>
-                    <button type="button" id="btnTrocarPdf" class="px-3.5 py-1.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-200 text-xs font-bold cursor-pointer">
-                        Trocar Arquivo
-                    </button>
                 </div>
             </div>
 
-            <!-- Card de Gestão de Signatários & Disparo -->
-            <div class="card-modern p-8 sm:p-10 shadow-xl border-slate-200">
-                <div class="flex items-center justify-between gap-4 mb-6">
-                    <div class="flex items-center gap-4">
-                        <div class="icon-box icon-box-purple">
-                            <i class="fa-solid fa-users text-xl"></i>
+            <!-- 2. ESTADO DO WORKSPACE (QUANDO O PDF ESTÁ ABERTO NA TELA) -->
+            <div id="pdfWorkspaceState" class="hidden space-y-6">
+                
+                <!-- Barra de Ferramentas e Ações do Documento Aberto (Sticky) -->
+                <div class="sticky top-4 z-30 bg-slate-900/95 backdrop-blur-md rounded-2xl p-4 border border-white/10 shadow-2xl flex flex-wrap items-center justify-between gap-4 text-white">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-lg border border-cyan-500/30">
+                            <i class="fa-solid fa-file-invoice"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-black text-slate-800">2. Partes & Signatários</h3>
-                            <p class="text-sm text-slate-500">Defina quem irá assinar este documento</p>
+                            <div id="pdfNomeArquivo" class="font-bold text-sm text-white truncate max-w-xs sm:max-w-md">documento.pdf</div>
+                            <div id="pdfStatusPaginas" class="text-xs text-cyan-300/80 font-mono">Carregando páginas...</div>
                         </div>
+                    </div>
+
+                    <!-- Botões de Ação do Documento Aberto -->
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <button type="button" id="btnTrocarPdf" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-folder-open"></i> <span>Trocar PDF</span>
+                        </button>
+                        <button type="button" onclick="abrirModalAssinaturaComTipo('contratante')" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-extrabold shadow-lg shadow-purple-600/30 transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.02]">
+                            <i class="fa-solid fa-signature"></i> <span>Assinar Documento</span>
+                        </button>
+                        <button type="button" id="btnExportarPdfAssinadoLib" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white text-xs font-extrabold shadow-lg shadow-cyan-600/30 transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.02]">
+                            <i class="fa-solid fa-floppy-disk"></i> <span>Salvar / Baixar PDF</span>
+                        </button>
+                        <button type="button" id="btnAbrirModalZap" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-extrabold shadow-lg shadow-emerald-600/30 transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.02]">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> <span>Enviar para Cliente</span>
+                        </button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    <!-- Signatário 1: Você (Emissão) -->
-                    <div class="border-2 border-slate-200 rounded-2xl p-6 bg-slate-50/50 flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="text-xs font-extrabold text-indigo-700 bg-indigo-100 px-3 py-1 rounded-lg uppercase">Signatário 1 (Você)</span>
-                                <span class="text-xs text-slate-500"><i class="fa-solid fa-laptop"></i> Assinatura Presencial</span>
-                            </div>
-                            <div class="space-y-3">
-                                <div>
-                                    <label class="label-modern text-xs">Seu Nome / Razão Social:</label>
-                                    <input type="text" id="signer1_nome" class="input-modern py-2 text-sm" placeholder="Ex: Fabiano Braga da Silva" />
-                                </div>
-                                <div>
-                                    <label class="label-modern text-xs">CPF / CNPJ:</label>
-                                    <input type="text" id="signer1_doc" class="input-modern py-2 text-sm" placeholder="Ex: 000.000.000-00" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-slate-200">
-                            <button type="button" onclick="abrirModalAssinaturaComTipo('contratante')" class="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
-                                <i class="fa-solid fa-signature"></i> <span>Assinar como Signatário 1</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Signatário 2: Cliente / Terceiro -->
-                    <div class="border-2 border-slate-200 rounded-2xl p-6 bg-slate-50/50 flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="text-xs font-extrabold text-cyan-700 bg-cyan-100 px-3 py-1 rounded-lg uppercase">Signatário 2 (Cliente)</span>
-                                <span class="text-xs text-slate-500"><i class="fa-solid fa-mobile-screen"></i> Assinatura Remota</span>
-                            </div>
-                            <div class="space-y-3">
-                                <div>
-                                    <label class="label-modern text-xs">Nome do Cliente:</label>
-                                    <input type="text" id="signer2_nome" class="input-modern py-2 text-sm" placeholder="Ex: Nome da outra parte" />
-                                </div>
-                                <div>
-                                    <label class="label-modern text-xs">WhatsApp para Envio:</label>
-                                    <input type="text" id="signer2_whatsapp" class="input-modern py-2 text-sm" placeholder="Ex: (48) 99999-9999" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-slate-200 space-y-2">
-                            <button type="button" onclick="dispararAssinaturaWhatsApp()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
-                                <i class="fa-brands fa-whatsapp text-sm"></i> <span>Enviar Link pelo WhatsApp</span>
-                            </button>
-                            <button type="button" onclick="abrirModalAssinaturaComTipo('contratado')" class="w-full py-2 rounded-xl border border-slate-300 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer">
-                                <i class="fa-solid fa-signature"></i> <span>Assinar Neste Computador</span>
-                            </button>
-                        </div>
+                <!-- Quadro de Renderização Real das Páginas do PDF -->
+                <div class="bg-slate-100 rounded-3xl p-4 sm:p-8 border border-slate-300 shadow-inner">
+                    <div id="pdfPagesRenderContainer" class="space-y-6">
+                        <!-- As páginas do PDF serão renderizadas aqui pelo PDF.js como folhas A4 reais -->
                     </div>
                 </div>
+            </div>
 
-                <!-- Ações Finais do Envelope -->
-                <div class="mt-8 pt-6 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
-                    <div class="text-xs text-slate-500">
-                        <i class="fa-solid fa-shield-halved text-indigo-600"></i> Autenticação criptográfica de conformidade inclusa no documento
+            <!-- Modal de Disparo WhatsApp -->
+            <div id="modalDisparoZap" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+                <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800">Enviar para Assinatura</h3>
+                                <p class="text-xs text-slate-500">Dispare o link seguro direto para o WhatsApp do cliente</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="$('#modalDisparoZap').addClass('hidden')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-                    <button type="button" id="btnExportarPdfAssinador" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-sm shadow-lg shadow-indigo-600/30 flex items-center gap-2.5 cursor-pointer">
-                        <i class="fa-solid fa-file-pdf"></i> <span>Baixar PDF com Certificação Forense</span>
-                    </button>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="label-modern text-xs">Nome do Cliente:</label>
+                            <input type="text" id="zap_cliente_nome" class="input-modern py-2 text-sm" placeholder="Ex: Nome da outra parte" />
+                        </div>
+                        <div>
+                            <label class="label-modern text-xs">Número do WhatsApp (com DDD):</label>
+                            <input type="text" id="zap_cliente_fone" class="input-modern py-2 text-sm" placeholder="Ex: (48) 99123-4567" />
+                        </div>
+                        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i> O cliente abrirá o link no celular, verá o documento e assinará digitalmente de graça.
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
+                        <button type="button" onclick="$('#modalDisparoZap').addClass('hidden')" class="px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-100 text-xs font-bold cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button type="button" onclick="confirmarDisparoZap()" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-lg shadow-emerald-600/30 cursor-pointer flex items-center gap-2">
+                            <i class="fa-brands fa-whatsapp"></i> <span>Abrir WhatsApp & Enviar</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1667,8 +1666,8 @@ if (strpos($client_ip, ',') !== false) {
             <div class="mb-4">
                 <label class="label-modern">Quem está assinando agora?</label>
                 <select id="signatario_tipo" class="input-modern py-2 text-sm font-semibold">
-                    <option value="contratante">1. Contratante</option>
-                    <option value="contratado">2. Contratado</option>
+                    <option value="contratante">1. Contratante / Você</option>
+                    <option value="contratado">2. Contratado / Cliente</option>
                     <option value="testemunha1">3. Testemunha 1</option>
                     <option value="testemunha2">4. Testemunha 2</option>
                 </select>
@@ -1750,7 +1749,7 @@ if (strpos($client_ip, ',') !== false) {
                     Cancelar
                 </button>
                 <button type="button" id="btnAplicarAssinatura" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold shadow-lg shadow-purple-600/30 cursor-pointer flex items-center gap-2">
-                    <i class="fa-solid fa-check"></i> <span>Estampar no Contrato</span>
+                    <i class="fa-solid fa-check"></i> <span>Estampar no Documento</span>
                 </button>
             </div>
         </div>
@@ -2784,7 +2783,6 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
     // SISTEMA DE NAVEGAÇÃO DE VIEWS (SPA 4USIGN PRO)
     // ==========================================
     function navegarPara(modo) {
-        // Fechar todas as views
         $('#viewHub, #viewGerador, #viewAssinador').addClass('hidden');
         $('.nav-tab').removeClass('bg-indigo-600 text-white shadow-sm').addClass('text-white/70 hover:bg-white/10');
 
@@ -2799,7 +2797,7 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
             $('#navBtnAssinar').removeClass('text-white/70 hover:bg-white/10').addClass('bg-indigo-600 text-white shadow-sm');
             window.location.hash = 'assinar';
             $('#heroTitulo').text('Central de Assinatura');
-            $('#heroSubtitulo').text('Assine documentos PDF ou envie links para clientes assinarem remotamente');
+            $('#heroSubtitulo').text('Abra qualquer documento PDF na tela para assinar e salvar ou enviar');
         } else {
             $('#viewHub').removeClass('hidden');
             $('#navBtnHub').removeClass('text-white/70 hover:bg-white/10').addClass('bg-indigo-600 text-white shadow-sm');
@@ -2812,7 +2810,6 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
     }
     window.navegarPara = navegarPara;
 
-    // Verificar hash da URL ao carregar
     $(document).ready(function() {
         const h = window.location.hash.replace('#', '');
         if (h === 'gerador' || h === 'assinar') {
@@ -2823,66 +2820,109 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
     });
 
     // ==========================================
-    // PONTE: GERADOR DE CONTRATOS ➔ ASSINADOR
+    // RENDERIZADOR REAL DE PDF NA TELA (PDF.JS)
     // ==========================================
-    $('#btnTransferirParaAssinador').click(function() {
-        const cNome = $('#contratante_nome').val() || 'Contratante';
-        const cDoc = $('#contratante_doc').val() || '';
-        const pNome = $('#contratado_nome').val() || 'Contratado';
-        const pTel = $('#contratado_telefone_whatsapp').val() || '';
+    let currentPdfBytes = null;
+    let currentPdfFileName = 'documento.pdf';
+    let pdfDocInstance = null;
 
-        $('#signer1_nome').val(cNome);
-        $('#signer1_doc').val(cDoc);
-        $('#signer2_nome').val(pNome);
-        $('#signer2_whatsapp').val(pTel);
+    async function carregarERenderizarPdf(pdfArrayBuffer, nomeArquivo) {
+        try {
+            currentPdfBytes = new Uint8Array(pdfArrayBuffer);
+            currentPdfFileName = nomeArquivo || 'documento.pdf';
 
-        $('#pdfNomeArquivo').text(`contrato_${cNome.toLowerCase().replace(/\s+/g, '_')}.pdf`);
-        $('#pdfInfoTamanho').text('Contrato Gerado pelo 4USign Pro pronto para coleta de assinaturas');
-        $('#pdfDetalhesBox').removeClass('hidden');
+            $('#pdfNomeArquivo').text(currentPdfFileName);
+            $('#pdfStatusPaginas').text('Processando páginas...');
 
-        navegarPara('assinar');
+            // Alternar de tela de upload para workspace do documento
+            $('#pdfUploadState').addClass('hidden');
+            $('#pdfWorkspaceState').removeClass('hidden');
 
-        Swal.fire({
-            icon: 'success',
-            title: '🚀 Documento Pronto para Assinatura!',
-            html: '<p class="text-sm text-slate-300">O contrato gerado foi importado para a <b>Central de Assinatura</b>.<br><br>Você pode assinar agora como <b>Signatário 1</b> e enviar o link por <b>WhatsApp</b> para o cliente assinar!</p>',
-            background: '#0f172a',
-            color: '#fff',
-            confirmButtonColor: '#6366f1'
-        });
-    });
+            const loadingTask = pdfjsLib.getDocument({ data: currentPdfBytes });
+            pdfDocInstance = await loadingTask.promise;
 
-    // ==========================================
-    // UPLOAD & DRAG AND DROP DE PDF NO ASSINADOR
-    // ==========================================
-    let uploadedPdfBytes = null;
+            $('#pdfStatusPaginas').text(`📄 ${pdfDocInstance.numPages} ${pdfDocInstance.numPages === 1 ? 'página' : 'páginas'}`);
+            $('#pdfPagesRenderContainer').empty();
 
-    $('#inputPdfFile').on('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        $('#pdfNomeArquivo').text(file.name);
-        const tamMb = (file.size / (1024 * 1024)).toFixed(2);
-        $('#pdfInfoTamanho').text(`Arquivo PDF (${tamMb} MB) carregado com sucesso!`);
-        $('#pdfDetalhesBox').removeClass('hidden');
+            for (let pageNum = 1; pageNum <= pdfDocInstance.numPages; pageNum++) {
+                const page = await pdfDocInstance.getPage(pageNum);
+                const scale = 1.6;
+                const viewport = page.getViewport({ scale: scale });
 
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-            uploadedPdfBytes = new Uint8Array(evt.target.result);
+                const sheetWrapper = document.createElement('div');
+                sheetWrapper.className = 'pdf-page-sheet';
+                sheetWrapper.id = 'pdfSheetPage_' + pageNum;
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                canvas.className = 'w-full block';
+
+                sheetWrapper.appendChild(canvas);
+
+                // Se for a última página, adiciona a área de sobreposição das assinaturas
+                if (pageNum === pdfDocInstance.numPages) {
+                    const sigOverlay = document.createElement('div');
+                    sigOverlay.id = 'workspaceSignatureOverlay';
+                    sigOverlay.className = 'p-6 bg-slate-50/90 border-t-2 border-slate-200 text-center';
+                    sigOverlay.innerHTML = `
+                        <div class="text-xs uppercase font-bold tracking-widest text-slate-400 mb-3">
+                            <i class="fa-solid fa-shield-halved text-indigo-600"></i> Autenticação Digital & Assinaturas
+                        </div>
+                        <div id="workspaceAssinaturasStamps" class="flex flex-wrap items-center justify-center gap-4">
+                            <button type="button" onclick="abrirModalAssinaturaComTipo('contratante')" class="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md cursor-pointer transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-signature"></i> Clique Aqui para Assinar Este Documento
+                            </button>
+                        </div>
+                    `;
+                    sheetWrapper.appendChild(sigOverlay);
+                }
+
+                document.getElementById('pdfPagesRenderContainer').appendChild(sheetWrapper);
+
+                await page.render({ canvasContext: context, viewport: viewport }).promise;
+            }
+
+            atualizarStampsNoWorkspace();
+
             Swal.fire({
                 icon: 'success',
-                title: '📄 PDF Carregado!',
-                text: `${file.name} pronto para receber as assinaturas!`,
+                title: '📄 Documento Aberto na Tela!',
+                text: `${currentPdfFileName} (${pdfDocInstance.numPages} pág.) está pronto para receber sua assinatura!`,
                 background: '#0f172a',
                 color: '#fff',
                 confirmButtonColor: '#06b6d4',
-                timer: 2000
+                timer: 2500
             });
+
+        } catch (err) {
+            console.error('Erro ao renderizar PDF:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro ao abrir PDF',
+                text: 'Não foi possível ler este arquivo PDF. Verifique se o documento não está protegido por senha.',
+                background: '#0f172a',
+                color: '#fff',
+                confirmButtonColor: '#6366f1'
+            });
+        }
+    }
+
+    // ==========================================
+    // UPLOAD & SELEÇÃO DE ARQUIVOS PDF
+    // ==========================================
+    $('#inputPdfFile').on('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            carregarERenderizarPdf(evt.target.result, file.name);
         };
         reader.readAsArrayBuffer(file);
     });
 
-    // Clique seguro no Dropzone e no botão Trocar Arquivo
     $('#pdfDropzone, #btnTrocarPdf').on('click', function(e) {
         e.preventDefault();
         $('#inputPdfFile')[0].click();
@@ -2892,7 +2932,6 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
         e.stopPropagation();
     });
 
-    // Drag and Drop
     const dropzone = document.getElementById('pdfDropzone');
     if (dropzone) {
         ['dragenter', 'dragover'].forEach(name => {
@@ -2912,33 +2951,125 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
     }
 
     // ==========================================
-    // DISPARO DE LINK POR WHATSAPP
+    // PONTE: ENVIAR CONTRATO GERADO DIRETO PARA O VISUALIZADOR
     // ==========================================
-    function dispararAssinaturaWhatsApp() {
-        const nomeCliente = $('#signer2_nome').val() || 'Cliente';
-        let fone = $('#signer2_whatsapp').val() || '';
-        fone = fone.replace(/\D/g, '');
+    $('#btnTransferirParaAssinador').click(async function() {
+        const texto = $('#contratoGeradoTexto').val();
+        if (!texto) return;
 
-        const docNome = $('#pdfNomeArquivo').text() || 'Contrato de Serviços';
-        const linkAssinatura = window.location.origin + window.location.pathname + '#assinar';
+        const cNome = $('#contratante_nome').val() || 'Contratante';
+        const docNome = `contrato_${cNome.toLowerCase().replace(/\s+/g, '_')}.pdf`;
 
-        const mensagem = `Olá ${nomeCliente}! 📄✍️\n\nSegue o link seguro da plataforma *4USign Pro* para a sua assinatura eletrônica no documento *${docNome}*:\n\n👉 ${linkAssinatura}\n\nBasta abrir o link pelo celular ou computador, conferir o documento e assinar. O processo é rápido, gratuito e tem plena validade jurídica (MP nº 2.200-2/2001 e Lei 14.063/2020).`;
+        Swal.fire({
+            title: 'Preparando Documento...',
+            text: 'Abrindo o contrato no visualizador de assinatura...',
+            background: '#0f172a',
+            color: '#fff',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
 
-        const zapUrl = fone ? `https://api.whatsapp.com/send?phone=55${fone}&text=${encodeURIComponent(mensagem)}` : `https://api.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
+        // Gerar o PDF temporário do contrato e abrir na tela
+        const container = document.createElement('div');
+        container.style.padding = '25px';
+        container.style.fontFamily = '"Times New Roman", serif';
+        container.style.fontSize = '12pt';
+        container.style.lineHeight = '1.7';
+        container.style.color = '#111';
+        container.style.textAlign = 'justify';
 
-        window.open(zapUrl, '_blank');
+        let linhasHtml = texto.split('\n').map(l => {
+            const limpa = l.trim();
+            if (limpa.length > 5 && limpa === limpa.toUpperCase() && !limpa.startsWith('§') && !/^\d/.test(limpa)) {
+                return `<div style="text-align: center; font-weight: bold; font-size: 13pt; margin: 18px 0 12px;">${limpa}</div>`;
+            }
+            if (/^CL[AÁ]USULA/i.test(limpa)) {
+                return `<div style="font-weight: bold; margin-top: 14px; margin-bottom: 4px;">${limpa}</div>`;
+            }
+            if (!limpa) return '<div style="height: 10px;"></div>';
+            return `<p style="text-indent: 1.5cm; margin: 0 0 8px 0;">${limpa}</p>`;
+        }).join('');
+
+        container.innerHTML = linhasHtml;
+
+        const opt = {
+            margin: [20, 20, 20, 20],
+            filename: docNome,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        const pdfBlob = await html2pdf().set(opt).from(container).outputPdf('blob');
+        const arrayBuffer = await pdfBlob.arrayBuffer();
+
+        navegarPara('assinar');
+        await carregarERenderizarPdf(arrayBuffer, docNome);
+    });
+
+    // ==========================================
+    // ATUALIZAÇÃO DOS STAMPS DE ASSINATURA NA TELA
+    // ==========================================
+    function atualizarStampsNoWorkspace() {
+        const container = document.getElementById('workspaceAssinaturasStamps');
+        if (!container) return;
+
+        let stampsHtml = '';
+
+        if (assinaturasSalvas['contratante']) {
+            stampsHtml += `
+                <div class="border-2 border-emerald-400 bg-emerald-50/80 rounded-2xl p-4 shadow-sm text-center min-w-[280px]">
+                    <img src="${assinaturasSalvas['contratante'].dataUrl}" class="h-14 max-w-full mx-auto mb-1 object-contain drop-shadow" />
+                    <div class="text-[10px] text-emerald-900 font-mono font-bold bg-emerald-100/90 py-1.5 px-3 rounded-xl border border-emerald-300 inline-block shadow-xs">
+                        <div class="flex items-center justify-center gap-1.5 mb-0.5 text-emerald-800">
+                            <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+                            <span>Assinado digitalmente • ${assinaturasSalvas['contratante'].dataHora}</span>
+                        </div>
+                        <div class="text-[9px] text-slate-600">
+                            <span class="text-indigo-700 font-bold">IP: ${assinaturasSalvas['contratante'].ip}</span> • Hash: ${assinaturasSalvas['contratante'].hash}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (assinaturasSalvas['contratado']) {
+            stampsHtml += `
+                <div class="border-2 border-emerald-400 bg-emerald-50/80 rounded-2xl p-4 shadow-sm text-center min-w-[280px]">
+                    <img src="${assinaturasSalvas['contratado'].dataUrl}" class="h-14 max-w-full mx-auto mb-1 object-contain drop-shadow" />
+                    <div class="text-[10px] text-emerald-900 font-mono font-bold bg-emerald-100/90 py-1.5 px-3 rounded-xl border border-emerald-300 inline-block shadow-xs">
+                        <div class="flex items-center justify-center gap-1.5 mb-0.5 text-emerald-800">
+                            <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+                            <span>Assinado digitalmente • ${assinaturasSalvas['contratado'].dataHora}</span>
+                        </div>
+                        <div class="text-[9px] text-slate-600">
+                            <span class="text-indigo-700 font-bold">IP: ${assinaturasSalvas['contratado'].ip}</span> • Hash: ${assinaturasSalvas['contratado'].hash}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (!assinaturasSalvas['contratante'] && !assinaturasSalvas['contratado']) {
+            stampsHtml = `
+                <button type="button" onclick="abrirModalAssinaturaComTipo('contratante')" class="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg cursor-pointer transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-signature"></i> Clique Aqui para Assinar Este Documento
+                </button>
+            `;
+        }
+
+        container.innerHTML = stampsHtml;
     }
-    window.dispararAssinaturaWhatsApp = dispararAssinaturaWhatsApp;
 
     // ==========================================
-    // EXPORTAÇÃO COM FOLHA DE CERTIFICAÇÃO FORENSE
+    // SALVAR / BAIXAR PDF ASSINADO COM PDF-LIB
     // ==========================================
-    $('#btnExportarPdfAssinador').click(function() {
+    $('#btnExportarPdfAssinadoLib').click(async function() {
         if (!assinaturasSalvas['contratante'] && !assinaturasSalvas['contratado']) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Nenhuma assinatura estampada',
-                text: 'Clique em "Assinar como Signatário 1" para estampar ao menos uma assinatura antes de exportar.',
+                text: 'Clique no botão "Assinar Documento" antes de salvar o arquivo.',
                 background: '#0f172a',
                 color: '#fff',
                 confirmButtonColor: '#6366f1'
@@ -2946,21 +3077,103 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
             return;
         }
 
-        // Se o contrato foi gerado no criador, usa o botão padrão de exportação jurídica
-        if ($('#contratoGeradoTexto').val()) {
+        if (!currentPdfBytes) {
+            // Se veio do gerador de texto
             $('#btnExportarPdfJuridico').click();
             return;
         }
 
-        Swal.fire({
-            icon: 'success',
-            title: '📄 Certificação Forense Gerada!',
-            html: '<p class="text-sm text-slate-300">Todas as assinaturas coletadas foram vinculadas ao documento com os respectivos Hashes SHA-256 e IPs registrados.</p>',
-            background: '#0f172a',
-            color: '#fff',
-            confirmButtonColor: '#6366f1'
-        });
+        try {
+            Swal.fire({
+                title: 'Gravando Assinaturas...',
+                text: 'Gerando certificação e carimbo criptográfico no PDF...',
+                background: '#0f172a',
+                color: '#fff',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            const pdfDoc = await PDFLib.PDFDocument.load(currentPdfBytes);
+            const pages = pdfDoc.getPages();
+            const lastPage = pages[pages.length - 1];
+            const { width, height } = lastPage.getSize();
+
+            // Pegar a assinatura ativa
+            const sigAtiva = assinaturasSalvas['contratante'] || assinaturasSalvas['contratado'];
+            if (sigAtiva && sigAtiva.dataUrl) {
+                const pngImage = await pdfDoc.embedPng(sigAtiva.dataUrl);
+                
+                // Desenhar a assinatura na base da última página
+                const imgWidth = 180;
+                const imgHeight = 45;
+                const posX = (width - imgWidth) / 2;
+                const posY = 50;
+
+                lastPage.drawImage(pngImage, {
+                    x: posX,
+                    y: posY,
+                    width: imgWidth,
+                    height: imgHeight,
+                });
+
+                // Desenhar carimbo de texto probatório
+                lastPage.drawText(`Assinado digitalmente em ${sigAtiva.dataHora}`, {
+                    x: posX - 20,
+                    y: posY - 10,
+                    size: 7,
+                    color: PDFLib.rgb(0.2, 0.2, 0.6)
+                });
+                lastPage.drawText(`IP: ${sigAtiva.ip} | Hash SHA-256: ${sigAtiva.hash}`, {
+                    x: posX - 40,
+                    y: posY - 20,
+                    size: 6.5,
+                    color: PDFLib.rgb(0.3, 0.3, 0.3)
+                });
+            }
+
+            const pdfFinalBytes = await pdfDoc.save();
+            const blob = new Blob([pdfFinalBytes], { type: 'application/pdf' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `assinado_${currentPdfFileName}`;
+            link.click();
+
+            Swal.fire({
+                icon: 'success',
+                title: '🎉 PDF Assinado com Sucesso!',
+                html: `<p class="text-sm text-slate-300">O arquivo <b>assinado_${currentPdfFileName}</b> foi gravado e baixado com todas as assinaturas e o selo forense de autenticidade!</p>`,
+                background: '#0f172a',
+                color: '#fff',
+                confirmButtonColor: '#06b6d4'
+            });
+
+        } catch (e) {
+            console.error('Erro ao gravar no PDF:', e);
+            // Fallback para html2pdf caso o PDF original seja incompatível
+            $('#btnExportarPdfJuridico').click();
+        }
     });
+
+    // ==========================================
+    // DISPARO DE LINK PELO WHATSAPP
+    // ==========================================
+    $('#btnAbrirModalZap').click(function() {
+        $('#modalDisparoZap').removeClass('hidden');
+    });
+
+    function confirmarDisparoZap() {
+        const nome = $('#zap_cliente_nome').val() || 'Cliente';
+        let fone = ($('#zap_cliente_fone').val() || '').replace(/\D/g, '');
+        const link = window.location.origin + window.location.pathname + '#assinar';
+
+        const mensagem = `Olá ${nome}! 📄✍️\n\nSegue o link seguro da plataforma *4USign Pro* para a sua assinatura eletrônica no documento *${currentPdfFileName}*:\n\n👉 ${link}\n\nBasta abrir o link pelo celular ou computador, conferir o documento e assinar. O processo é rápido, gratuito e tem plena validade jurídica (MP nº 2.200-2/2001 e Lei nº 14.063/2020).`;
+
+        const zapUrl = fone ? `https://api.whatsapp.com/send?phone=55${fone}&text=${encodeURIComponent(mensagem)}` : `https://api.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
+
+        window.open(zapUrl, '_blank');
+        $('#modalDisparoZap').addClass('hidden');
+    }
+    window.confirmarDisparoZap = confirmarDisparoZap;
 
     // ==========================================
     // PREENCHIMENTO DE DADOS FICTÍCIOS / TESTE
@@ -3363,7 +3576,7 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
     $('#btnGerarPreviaOffline').click(gerarPreviaOffline);
 
     // ==========================================
-    // RENDERIZADOR VISUAL DO DOCUMENTO (COM ASSINATURAS VIVAS)
+    // RENDERIZADOR VISUAL DO DOCUMENTO (COM ASSINATURAS VIVAS NO GERADOR)
     // ==========================================
     function atualizarVisualizadorDocumento() {
         const texto = $('#contratoGeradoTexto').val() || '';
@@ -3517,9 +3730,9 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
             .catch(() => {});
     } catch(e) {}
 
-    let sigModoAtual = 'caligrafia'; // 'caligrafia' ou 'desenho'
+    let sigModoAtual = 'caligrafia';
     let sigFonteAtual = 'Dancing Script';
-    let sigCorAtual = '#1d4ed8'; // Azul Caneta padrão
+    let sigCorAtual = '#1d4ed8';
 
     function initSignaturePad() {
         sigCanvas = document.getElementById('signaturePad');
@@ -3584,9 +3797,9 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
         const tipo = $('#signatario_tipo').val();
         let nomePadrao = '';
         if (tipo === 'contratante') {
-            nomePadrao = $('#signer1_nome').val() || $('#contratante_nome').val() || 'Contratante';
+            nomePadrao = $('#contratante_nome').val() || 'Você / Contratante';
         } else if (tipo === 'contratado') {
-            nomePadrao = $('#signer2_nome').val() || $('#contratado_nome').val() || 'Contratado(a)';
+            nomePadrao = $('#zap_cliente_nome').val() || $('#contratado_nome').val() || 'Cliente';
         } else if (tipo === 'testemunha1') {
             nomePadrao = 'Testemunha 1';
         } else if (tipo === 'testemunha2') {
@@ -3614,7 +3827,6 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
         if (modal) modal.classList.add('hidden');
     }
 
-    // Alternar abas do modal
     $('#tabSigCaligrafia').click(function() {
         sigModoAtual = 'caligrafia';
         $(this).addClass('bg-white text-indigo-600 shadow-sm').removeClass('text-slate-500');
@@ -3632,7 +3844,6 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
         if (!sigCanvas) initSignaturePad();
     });
 
-    // Seletor de fontes caligráficas
     $(document).on('click', '.btn-sig-font', function() {
         $('.btn-sig-font').removeClass('active border-indigo-500 bg-indigo-50/50').addClass('border-slate-200');
         $(this).addClass('active border-indigo-500 bg-indigo-50/50').removeClass('border-slate-200');
@@ -3640,7 +3851,6 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
         atualizarCaligrafiaPreview();
     });
 
-    // Seletor de cores da tinta
     $(document).on('click', '.btn-sig-cor', function() {
         $('.btn-sig-cor').removeClass('active border-2 border-blue-600 bg-blue-50').addClass('border border-slate-200');
         $(this).addClass('active border-2 border-blue-600 bg-blue-50').removeClass('border border-slate-200');
@@ -3651,7 +3861,6 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
     $('#sig_nome_input').on('input', atualizarCaligrafiaPreview);
     $('#signatario_tipo').on('change', sincronizarNomeSignatario);
 
-    // Gerar imagem da caligrafia em alta resolução (PNG transparente) com auto-escala inteligente
     function renderizarCaligrafiaEmPng(nome, fontName, corHex) {
         const canvas = document.createElement('canvas');
         canvas.width = 1200;
@@ -3662,7 +3871,7 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
         let fontSize = 76;
         ctx.font = `italic ${fontSize}px "${fontName}", cursive`;
         let textWidth = ctx.measureText(nome).width;
-        const maxAllowedWidth = canvas.width - 140; // 70px de margem lateral
+        const maxAllowedWidth = canvas.width - 140;
 
         if (textWidth > maxAllowedWidth) {
             fontSize = Math.floor(fontSize * (maxAllowedWidth / textWidth));
@@ -3703,16 +3912,21 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
 
         fecharModalAssinatura();
 
-        // 1. Atualizar a visualização na tela imediatamente
-        $('#tabModoVisual').click();
-        atualizarVisualizadorDocumento();
-
-        // 2. Animar scroll para as assinaturas estampadas se estiver no gerador
-        if ($('#blocoAssinaturasVisual').length && !$('#viewGerador').hasClass('hidden')) {
-            $('html, body').animate({ scrollTop: $('#blocoAssinaturasVisual').offset().top - 150 }, 600);
+        // 1. Se estiver no Workspace de PDF aberto, atualiza os stamps do PDF
+        if (!$('#pdfWorkspaceState').hasClass('hidden')) {
+            atualizarStampsNoWorkspace();
         }
 
-        const labelTipo = tipo === 'contratante' ? 'Signatário 1 (Contratante)' : tipo === 'contratado' ? 'Signatário 2 (Contratado)' : 'Testemunha';
+        // 2. Se estiver no Criador de Contratos, atualiza a folha formatada
+        if (!$('#viewGerador').hasClass('hidden')) {
+            $('#tabModoVisual').click();
+            atualizarVisualizadorDocumento();
+            if ($('#blocoAssinaturasVisual').length) {
+                $('html, body').animate({ scrollTop: $('#blocoAssinaturasVisual').offset().top - 150 }, 600);
+            }
+        }
+
+        const labelTipo = tipo === 'contratante' ? 'Você / Contratante' : tipo === 'contratado' ? 'Cliente / Contratado' : 'Testemunha';
 
         Swal.fire({
             icon: 'success',
@@ -3738,15 +3952,15 @@ ${dadosPrompt.instrucoesIA ? 'INSTRUÇÕES ADICIONAIS:\n' + dadosPrompt.instruco
     $('#btnAplicarAssinatura').click(aplicarAssinaturaNoContrato);
 
     // ==========================================
-    // EXPORTAÇÃO DE PDF JURÍDICO ABNT
+    // EXPORTAÇÃO DE PDF JURÍDICO ABNT (DO GERADOR)
     // ==========================================
     $('#btnExportarPdfJuridico').click(function() {
         const texto = $('#contratoGeradoTexto').val();
         if (!texto) return;
 
-        const nomeContratante = $('#contratante_nome').val() || $('#signer1_nome').val() || 'Contratante';
-        const docContratante = $('#contratante_doc').val() || $('#signer1_doc').val() || '';
-        const nomeContratado = $('#contratado_nome').val() || $('#signer2_nome').val() || 'Contratado';
+        const nomeContratante = $('#contratante_nome').val() || 'Contratante';
+        const docContratante = $('#contratante_doc').val() || '';
+        const nomeContratado = $('#contratado_nome').val() || 'Contratado';
         const docContratado = $('#contratado_doc').val() || '';
 
         let assinaturasHtml = `
