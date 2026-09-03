@@ -8,7 +8,7 @@ $v = time();
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <!-- PWA Meta Tags -->
+    <!-- PWA Meta Tags & Fontes Caligráficas -->
     <link rel="manifest" href="manifest.json?v=<?php echo $v; ?>">
     <meta name="theme-color" content="#0f172a">
     <meta name="mobile-web-app-capable" content="yes">
@@ -16,6 +16,10 @@ $v = time();
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="apple-touch-icon" href="icon-192.png">
+    <!-- Fontes Manuscritas para Assinatura Digital -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Sacramento&family=Allura&display=swap" rel="stylesheet">
     <!-- HTML2PDF para exportação jurídica perfeita -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -393,7 +397,7 @@ $v = time();
         .footer-a { transition: all 0.2s; text-decoration: none; color: inherit; }
         .footer-a:hover { color: #6366f1; opacity: 1; }
     
-        /* ============ PWA & SIGNATURE PAD ============ */
+        /* ============ PWA, CALIGRAFIA & SIGNATURE PAD ============ */
         .pwa-install-btn {
             display: inline-flex;
             align-items: center;
@@ -422,6 +426,12 @@ $v = time();
             touch-action: none;
             cursor: crosshair;
         }
+
+        .font-dancing { font-family: 'Dancing Script', cursive; }
+        .font-greatvibes { font-family: 'Great Vibes', cursive; }
+        .font-sacramento { font-family: 'Sacramento', cursive; }
+        .font-caveat { font-family: 'Caveat', cursive; }
+        .font-allura { font-family: 'Allura', cursive; }
 
     </style>
 </head>
@@ -1267,25 +1277,25 @@ $v = time();
 
     <!-- Footer -->
     
-    <!-- Modal de Assinatura Digital na Tela -->
+    <!-- Modal de Assinatura Digital Avançada (Manuscrita ou Desenho) -->
     <div id="modalAssinatura" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl border border-slate-100">
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-lg">
                         <i class="fa-solid fa-file-signature"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-slate-800">Assinatura Eletrônica na Tela</h3>
-                        <p class="text-xs text-slate-500">Desenhe a assinatura com o dedo ou mouse</p>
+                        <h3 class="text-lg font-bold text-slate-800">Assinatura Eletrônica</h3>
+                        <p class="text-xs text-slate-500">Caligrafia manuscrita automática ou desenho livre</p>
                     </div>
                 </div>
-                <button type="button" id="btnFecharModalAssinaturaX" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" id="btnFecharModalAssinaturaX" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div class="mb-4">
                 <label class="label-modern">Quem está assinando agora?</label>
-                <select id="signatario_tipo" class="input-modern py-2 text-sm">
+                <select id="signatario_tipo" class="input-modern py-2 text-sm font-semibold">
                     <option value="contratante">1. Contratante</option>
                     <option value="contratado">2. Contratado</option>
                     <option value="testemunha1">3. Testemunha 1</option>
@@ -1293,16 +1303,83 @@ $v = time();
                 </select>
             </div>
 
-            <div class="mb-4">
-                <canvas id="signaturePad" width="440" height="180" class="signature-canvas w-full"></canvas>
+            <!-- Abas do Modal: Caligrafia Manuscrita vs Desenho -->
+            <div class="flex p-1 bg-slate-100 rounded-xl mb-4 text-xs font-bold">
+                <button type="button" id="tabSigCaligrafia" class="flex-1 py-2 rounded-lg bg-white text-indigo-600 shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-font"></i> <span>Caligrafia Manuscrita</span>
+                </button>
+                <button type="button" id="tabSigDesenho" class="flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-700 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-pen-nib"></i> <span>Desenhar na Tela</span>
+                </button>
             </div>
 
-            <div class="flex items-center justify-between gap-3">
-                <button type="button" id="btnLimparAssinatura" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold">
-                    <i class="fa-solid fa-eraser"></i> Limpar
+            <!-- 1. PAINEL CALIGRAFIA MANUSCRITA AUTOMÁTICA -->
+            <div id="painelSigCaligrafia" class="space-y-4">
+                <div>
+                    <label class="label-modern text-xs">Nome a ser assinado:</label>
+                    <input type="text" id="sig_nome_input" class="input-modern py-2 text-sm font-medium" placeholder="Digite ou confirme o nome para a assinatura" />
+                </div>
+
+                <div>
+                    <label class="label-modern text-xs">Estilo da Caligrafia:</label>
+                    <div class="grid grid-cols-2 gap-2 mt-1">
+                        <button type="button" class="btn-sig-font active p-2 border-2 border-indigo-500 bg-indigo-50/50 rounded-xl text-left cursor-pointer transition-all" data-font="Dancing Script">
+                            <span class="text-[10px] text-slate-400 font-sans block">1. Moderna</span>
+                            <span class="font-dancing text-lg text-indigo-900 block truncate">Nome do Cliente</span>
+                        </button>
+                        <button type="button" class="btn-sig-font p-2 border-2 border-slate-200 hover:border-indigo-300 rounded-xl text-left cursor-pointer transition-all" data-font="Great Vibes">
+                            <span class="text-[10px] text-slate-400 font-sans block">2. Clássica</span>
+                            <span class="font-greatvibes text-lg text-slate-800 block truncate">Nome do Cliente</span>
+                        </button>
+                        <button type="button" class="btn-sig-font p-2 border-2 border-slate-200 hover:border-indigo-300 rounded-xl text-left cursor-pointer transition-all" data-font="Sacramento">
+                            <span class="text-[10px] text-slate-400 font-sans block">3. Sofisticada</span>
+                            <span class="font-sacramento text-xl text-slate-800 block truncate">Nome do Cliente</span>
+                        </button>
+                        <button type="button" class="btn-sig-font p-2 border-2 border-slate-200 hover:border-indigo-300 rounded-xl text-left cursor-pointer transition-all" data-font="Caveat">
+                            <span class="text-[10px] text-slate-400 font-sans block">4. Espontânea</span>
+                            <span class="font-caveat text-xl text-slate-800 block truncate">Nome do Cliente</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <label class="label-modern text-xs">Cor da Tinta:</label>
+                    <div class="flex items-center gap-2">
+                        <button type="button" class="btn-sig-cor active px-3 py-1 rounded-lg text-xs font-bold border-2 border-blue-600 bg-blue-50 text-blue-800 cursor-pointer flex items-center gap-1.5" data-color="#1d4ed8">
+                            <span class="w-3 h-3 rounded-full bg-blue-700"></span> Azul Caneta
+                        </button>
+                        <button type="button" class="btn-sig-cor px-3 py-1 rounded-lg text-xs font-bold border border-slate-200 text-slate-700 cursor-pointer flex items-center gap-1.5" data-color="#0f172a">
+                            <span class="w-3 h-3 rounded-full bg-slate-900"></span> Preto Formal
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preview da Assinatura Gerada -->
+                <div class="border-2 border-slate-200 rounded-2xl p-4 bg-slate-50/50 text-center relative overflow-hidden">
+                    <div class="text-[9px] uppercase tracking-wider text-slate-400 mb-1">Pré-visualização da Assinatura</div>
+                    <div id="sigCaligrafiaPreview" class="h-20 flex items-center justify-center font-dancing text-3xl sm:text-4xl text-blue-700 select-none drop-shadow-xs">
+                        Assinatura
+                    </div>
+                    <div class="w-48 mx-auto border-t border-slate-300 pt-1 text-[10px] text-slate-400 font-mono">Linha de Assinatura</div>
+                </div>
+            </div>
+
+            <!-- 2. PAINEL DESENHO LIVRE NA TELA -->
+            <div id="painelSigDesenho" class="hidden space-y-3">
+                <canvas id="signaturePad" width="440" height="180" class="signature-canvas w-full"></canvas>
+                <div class="flex justify-end">
+                    <button type="button" id="btnLimparAssinatura" class="px-4 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold cursor-pointer">
+                        <i class="fa-solid fa-eraser"></i> Limpar Traço
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 mt-6 pt-4 border-t border-slate-100">
+                <button type="button" onclick="fecharModalAssinatura()" class="px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-100 text-xs font-bold cursor-pointer">
+                    Cancelar
                 </button>
-                <button type="button" id="btnAplicarAssinatura" class="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-lg shadow-purple-600/30">
-                    <i class="fa-solid fa-check"></i> Estampar no Contrato
+                <button type="button" id="btnAplicarAssinatura" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold shadow-lg shadow-purple-600/30 cursor-pointer flex items-center gap-2">
+                    <i class="fa-solid fa-check"></i> <span>Estampar no Contrato</span>
                 </button>
             </div>
         </div>
@@ -2909,7 +2986,7 @@ ${$('#instrucoes_ia').val().trim()}
         Swal.fire({
             icon: 'info',
             title: `⚡ Modelo [${formLabel}] Gerado!`,
-            html: `<p class="text-sm text-slate-300">O contrato foi estruturado no nível <b>${formLabel}</b> sem gastar créditos de IA!<br><br>👉 Veja o documento formatado abaixo e clique em <b>"Assinar como Contratante"</b> para desenhar e ver a assinatura estampada na hora!</p>`,
+            html: `<p class="text-sm text-slate-300">O contrato foi estruturado no nível <b>${formLabel}</b> sem gastar créditos de IA!<br><br>👉 Veja o documento formatado abaixo e clique em <b>"Assinar como Contratante"</b> para gerar a assinatura manuscrita com o nome da parte!</p>`,
             background: '#0f172a',
             color: '#fff',
             confirmButtonColor: '#6366f1',
@@ -3052,12 +3129,16 @@ ${$('#instrucoes_ia').val().trim()}
     });
 
     // ==========================================
-    // ASSINATURA DIGITAL CANVAS (FUNÇÕES GLOBAIS E EVENTOS)
+    // SISTEMA DE ASSINATURA ELETRÔNICA (CALIGRAFIA + DESENHO)
     // ==========================================
     let sigCanvas = null;
     let sigCtx = null;
     let isDrawing = false;
     let assinaturasSalvas = {};
+
+    let sigModoAtual = 'caligrafia'; // 'caligrafia' ou 'desenho'
+    let sigFonteAtual = 'Dancing Script';
+    let sigCorAtual = '#1d4ed8'; // Azul Caneta padrão
 
     function initSignaturePad() {
         sigCanvas = document.getElementById('signaturePad');
@@ -3108,10 +3189,37 @@ ${$('#instrucoes_ia').val().trim()}
         sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
     }
 
+    function atualizarCaligrafiaPreview() {
+        const nome = $('#sig_nome_input').val() || 'Assinatura';
+        $('#sigCaligrafiaPreview')
+            .text(nome)
+            .css({
+                'font-family': `"${sigFonteAtual}", cursive`,
+                'color': sigCorAtual
+            });
+    }
+
+    function sincronizarNomeSignatario() {
+        const tipo = $('#signatario_tipo').val();
+        let nomePadrao = '';
+        if (tipo === 'contratante') {
+            nomePadrao = $('#contratante_nome').val() || 'Contratante';
+        } else if (tipo === 'contratado') {
+            nomePadrao = $('#contratado_nome').val() || 'Contratado(a)';
+        } else if (tipo === 'testemunha1') {
+            nomePadrao = 'Testemunha 1';
+        } else if (tipo === 'testemunha2') {
+            nomePadrao = 'Testemunha 2';
+        }
+        $('#sig_nome_input').val(nomePadrao);
+        atualizarCaligrafiaPreview();
+    }
+
     function abrirModalAssinatura() {
         const modal = document.getElementById('modalAssinatura');
         if (modal) modal.classList.remove('hidden');
         if (!sigCanvas) initSignaturePad();
+        sincronizarNomeSignatario();
         limparAssinatura();
     }
 
@@ -3125,17 +3233,80 @@ ${$('#instrucoes_ia').val().trim()}
         if (modal) modal.classList.add('hidden');
     }
 
+    // Alternar abas do modal
+    $('#tabSigCaligrafia').click(function() {
+        sigModoAtual = 'caligrafia';
+        $(this).addClass('bg-white text-indigo-600 shadow-sm').removeClass('text-slate-500');
+        $('#tabSigDesenho').removeClass('bg-white text-indigo-600 shadow-sm').addClass('text-slate-500');
+        $('#painelSigCaligrafia').removeClass('hidden');
+        $('#painelSigDesenho').addClass('hidden');
+    });
+
+    $('#tabSigDesenho').click(function() {
+        sigModoAtual = 'desenho';
+        $(this).addClass('bg-white text-indigo-600 shadow-sm').removeClass('text-slate-500');
+        $('#tabSigCaligrafia').removeClass('bg-white text-indigo-600 shadow-sm').addClass('text-slate-500');
+        $('#painelSigDesenho').removeClass('hidden');
+        $('#painelSigCaligrafia').addClass('hidden');
+        if (!sigCanvas) initSignaturePad();
+    });
+
+    // Seletor de fontes caligráficas
+    $(document).on('click', '.btn-sig-font', function() {
+        $('.btn-sig-font').removeClass('active border-indigo-500 bg-indigo-50/50').addClass('border-slate-200');
+        $(this).addClass('active border-indigo-500 bg-indigo-50/50').removeClass('border-slate-200');
+        sigFonteAtual = $(this).data('font');
+        atualizarCaligrafiaPreview();
+    });
+
+    // Seletor de cores da tinta
+    $(document).on('click', '.btn-sig-cor', function() {
+        $('.btn-sig-cor').removeClass('active border-2 border-blue-600 bg-blue-50').addClass('border border-slate-200');
+        $(this).addClass('active border-2 border-blue-600 bg-blue-50').removeClass('border border-slate-200');
+        sigCorAtual = $(this).data('color');
+        atualizarCaligrafiaPreview();
+    });
+
+    $('#sig_nome_input').on('input', atualizarCaligrafiaPreview);
+    $('#signatario_tipo').on('change', sincronizarNomeSignatario);
+
+    // Gerar imagem da caligrafia em alta resolução (PNG transparente)
+    function renderizarCaligrafiaEmPng(nome, fontName, corHex) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 800;
+        canvas.height = 200;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, 800, 200);
+        
+        ctx.fillStyle = corHex || '#1d4ed8';
+        ctx.font = `italic 68px "${fontName}", cursive`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(nome, 400, 100);
+        
+        return canvas.toDataURL('image/png');
+    }
+
     function aplicarAssinaturaNoContrato() {
-        if (!sigCanvas) return;
         const tipo = document.getElementById('signatario_tipo').value;
-        const dataUrl = sigCanvas.toDataURL('image/png');
+        let dataUrl = '';
+
+        if (sigModoAtual === 'caligrafia') {
+            const nomeDigitado = $('#sig_nome_input').val() || 'Assinatura';
+            dataUrl = renderizarCaligrafiaEmPng(nomeDigitado, sigFonteAtual, sigCorAtual);
+        } else {
+            if (!sigCanvas) return;
+            dataUrl = sigCanvas.toDataURL('image/png');
+        }
+
         const hash = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2,'0')).join('');
         const dataHora = new Date().toLocaleString('pt-BR');
 
         assinaturasSalvas[tipo] = {
             dataUrl: dataUrl,
             hash: hash,
-            dataHora: dataHora
+            dataHora: dataHora,
+            modo: sigModoAtual
         };
 
         fecharModalAssinatura();
@@ -3154,7 +3325,7 @@ ${$('#instrucoes_ia').val().trim()}
         Swal.fire({
             icon: 'success',
             title: '🎉 Assinatura Estampada!',
-            html: `<p class="text-sm text-slate-300">A assinatura do <b>${labelTipo}</b> foi inserida no documento com selo criptográfico SHA-256 e horário oficial!<br><br>👉 Agora você já pode clicar em <b>"Baixar PDF Jurídico"</b> para exportar o documento oficial assinado!</p>`,
+            html: `<p class="text-sm text-slate-300">A assinatura do <b>${labelTipo}</b> foi inserida com caligrafia personalizada, selo criptográfico SHA-256 e horário oficial!<br><br>👉 Clique em <b>"Baixar PDF Jurídico"</b> para ver o contrato oficial assinado!</p>`,
             background: '#0f172a',
             color: '#fff',
             confirmButtonColor: '#6366f1'
@@ -3190,12 +3361,12 @@ ${$('#instrucoes_ia').val().trim()}
             <div style="margin-top: 40px; page-break-inside: avoid;">
                 <div style="display: flex; justify-content: space-between; gap: 40px; margin-top: 50px;">
                     <div style="flex: 1; text-align: center;">
-                        ${assinaturasSalvas['contratante'] ? `<img src="${assinaturasSalvas['contratante'].dataUrl}" style="height: 50px; margin: 0 auto 5px; display: block;" /><div style="font-size: 8pt; color: #4338ca;">🛡️ Assinado digitalmente em ${assinaturasSalvas['contratante'].dataHora}<br>Hash: ${assinaturasSalvas['contratante'].hash}</div>` : ''}
+                        ${assinaturasSalvas['contratante'] ? `<img src="${assinaturasSalvas['contratante'].dataUrl}" style="height: 55px; margin: 0 auto 5px; display: block;" /><div style="font-size: 8pt; color: #4338ca;">🛡️ Assinado digitalmente em ${assinaturasSalvas['contratante'].dataHora}<br>Hash: ${assinaturasSalvas['contratante'].hash}</div>` : ''}
                         <div style="border-top: 1px solid #000; padding-top: 5px; font-size: 10pt; font-weight: bold;">${nomeContratante}</div>
                         <div style="font-size: 9pt; color: #444;">CONTRATANTE ${docContratante ? '• ' + docContratante : ''}</div>
                     </div>
                     <div style="flex: 1; text-align: center;">
-                        ${assinaturasSalvas['contratado'] ? `<img src="${assinaturasSalvas['contratado'].dataUrl}" style="height: 50px; margin: 0 auto 5px; display: block;" /><div style="font-size: 8pt; color: #4338ca;">🛡️ Assinado digitalmente em ${assinaturasSalvas['contratado'].dataHora}<br>Hash: ${assinaturasSalvas['contratado'].hash}</div>` : ''}
+                        ${assinaturasSalvas['contratado'] ? `<img src="${assinaturasSalvas['contratado'].dataUrl}" style="height: 55px; margin: 0 auto 5px; display: block;" /><div style="font-size: 8pt; color: #4338ca;">🛡️ Assinado digitalmente em ${assinaturasSalvas['contratado'].dataHora}<br>Hash: ${assinaturasSalvas['contratado'].hash}</div>` : ''}
                         <div style="border-top: 1px solid #000; padding-top: 5px; font-size: 10pt; font-weight: bold;">${nomeContratado}</div>
                         <div style="font-size: 9pt; color: #444;">CONTRATADO ${docContratado ? '• ' + docContratado : ''}</div>
                     </div>
