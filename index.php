@@ -1810,6 +1810,39 @@ if (strpos($client_ip, ',') !== false) {
                     </div>
                 </div>
 
+                <!-- Bloco de Equivalência com os Líderes de Mercado (DocuSign, ClickSign, ZapSign) -->
+                <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-4 sm:p-5 border border-indigo-500/30 shadow-xl relative overflow-hidden">
+                    <div class="flex items-center gap-2 mb-2 text-cyan-400 font-black text-xs uppercase tracking-wider">
+                        <i class="fa-solid fa-award text-amber-400 text-sm"></i> O Mesmo Padrão Tecnológico & Jurídico dos Líderes de Mercado
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        O <b>4USign Pro</b> foi construído sobre a <b>mesma arquitetura técnica, criptográfica e legal</b> utilizada pelas maiores plataformas de assinatura eletrônica do Brasil e do mundo:
+                    </p>
+                    <div class="flex flex-wrap items-center gap-2 my-3 pt-3 border-t border-white/10">
+                        <span class="px-3 py-1 rounded-xl bg-white/10 text-white font-extrabold text-[11px] flex items-center gap-1.5 border border-white/10 shadow-sm">
+                            <i class="fa-solid fa-signature text-amber-400"></i> DocuSign
+                        </span>
+                        <span class="px-3 py-1 rounded-xl bg-white/10 text-white font-extrabold text-[11px] flex items-center gap-1.5 border border-white/10 shadow-sm">
+                            <i class="fa-solid fa-file-signature text-emerald-400"></i> ClickSign
+                        </span>
+                        <span class="px-3 py-1 rounded-xl bg-white/10 text-white font-extrabold text-[11px] flex items-center gap-1.5 border border-white/10 shadow-sm">
+                            <i class="fa-solid fa-bolt text-yellow-400"></i> ZapSign
+                        </span>
+                        <span class="px-3 py-1 rounded-xl bg-white/10 text-white font-extrabold text-[11px] flex items-center gap-1.5 border border-white/10 shadow-sm">
+                            <i class="fa-solid fa-file-contract text-cyan-400"></i> D4Sign
+                        </span>
+                        <span class="px-3 py-1 rounded-xl bg-white/10 text-white font-extrabold text-[11px] flex items-center gap-1.5 border border-white/10 shadow-sm">
+                            <i class="fa-solid fa-file-pdf text-red-400"></i> Adobe Sign
+                        </span>
+                        <span class="px-3 py-1 rounded-xl bg-white/10 text-white font-extrabold text-[11px] flex items-center gap-1.5 border border-white/10 shadow-sm">
+                            <i class="fa-solid fa-landmark text-blue-400"></i> Gov.br
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-normal">
+                        Todas essas ferramentas operam sob o mesmo pilar: <b>Criptografia Hash SHA-256</b>, <b>trilha forense de IP/Data</b> e <b>consentimento formal de vontade</b>, respaldadas pela <b>MP nº 2.200-2/2001</b> e <b>Lei nº 14.063/2020</b>, com total aceitação pelo Superior Tribunal de Justiça (STJ) e juizados em todo o território nacional.
+                    </p>
+                </div>
+
                 <!-- Bloco 1: O QUE TEM 100% DE VALIDADE -->
                 <div>
                     <div class="flex items-center gap-2 mb-3">
@@ -1892,7 +1925,7 @@ if (strpos($client_ip, ',') !== false) {
                     </div>
                     <div class="mt-3 text-[11px] text-indigo-950 bg-white/80 border border-indigo-100 p-2.5 rounded-xl flex items-start gap-2">
                         <i class="fa-solid fa-shield-halved text-indigo-600 text-xs mt-0.5"></i>
-                        <span><b>Precisa rubricar as outras folhas?</b> Não! No meio digital, o <b>Hash SHA-256</b> blinda 100% de todas as páginas ao mesmo tempo. Uma única assinatura no final protege o contrato inteiro contra fraudes e substituição de folhas.</span>
+                        <span><b>Precisa rubricar as outras folhas?</b> Não! Assim como no <b>DocuSign, ClickSign e ZapSign</b>, o <b>Hash SHA-256</b> blinda 100% de todas as páginas ao mesmo tempo. Uma única assinatura no final protege o contrato inteiro contra fraudes e substituição de folhas.</span>
                     </div>
                 </div>
 
