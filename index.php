@@ -1454,23 +1454,33 @@ if (strpos($client_ip, ',') !== false) {
                 </div>
 
                 <!-- Texto do Contrato -->
-                <!-- Abas de Visualização (Visual / Editor) -->
-                <div class="flex items-center justify-between gap-2 mb-4 border-b border-slate-200 pb-3">
+                <!-- Barra Superior Fixa de Ações Rápidas (Sempre Visível no Topo do Documento!) -->
+                <div class="sticky top-20 z-20 bg-slate-900/95 backdrop-blur-md text-white rounded-2xl p-3 sm:p-4 shadow-2xl border border-white/15 mb-6 flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-2">
-                        <button type="button" id="tabModoVisual" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-md transition-all flex items-center gap-2 cursor-pointer">
-                            <i class="fa-solid fa-file-invoice"></i> <span>Documento Formatado & Assinaturas</span>
+                        <button type="button" id="tabModoVisual" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-file-invoice"></i> <span>Documento Formatado</span>
                         </button>
-                        <button type="button" id="tabModoTexto" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-2 cursor-pointer">
+                        <button type="button" id="tabModoTexto" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all flex items-center gap-1.5 cursor-pointer">
                             <i class="fa-solid fa-pen-to-square"></i> <span>Editor de Texto (Raw)</span>
                         </button>
                     </div>
-                    <div class="text-xs text-slate-500 font-medium hidden sm:flex items-center gap-1.5">
-                        <i class="fa-solid fa-circle-check text-emerald-500"></i> Autenticação Criptográfica SHA-256
+
+                    <!-- Botões Rápidos no Topo para Acesso Imediato sem Rolar -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button type="button" onclick="$('#btnExportarPdfJuridico').click()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-xs font-extrabold shadow-lg shadow-red-600/30 cursor-pointer flex items-center gap-1.5 hover:scale-105 transition-all">
+                            <i class="fa-solid fa-file-pdf"></i> <span>Baixar PDF</span>
+                        </button>
+                        <button type="button" onclick="$('#btnTransferirParaAssinador').click()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white text-xs font-extrabold shadow-lg shadow-cyan-600/30 cursor-pointer flex items-center gap-1.5 hover:scale-105 transition-all">
+                            <i class="fa-solid fa-paper-plane"></i> <span>Assinador PDF</span>
+                        </button>
+                        <button type="button" onclick="abrirModalAssinaturaComTipo('contratante')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-extrabold shadow-lg shadow-purple-600/30 cursor-pointer flex items-center gap-1.5 hover:scale-105 transition-all">
+                            <i class="fa-solid fa-signature"></i> <span>Assinar</span>
+                        </button>
                     </div>
                 </div>
 
-                <!-- 1. Visualizador Estilizado A4 com Assinaturas Vivas -->
-                <div id="contratoPreviewVisual" class="bg-white text-slate-900 rounded-2xl p-6 sm:p-10 shadow-inner border border-slate-200 font-serif leading-relaxed text-sm max-h-[600px] overflow-y-auto">
+                <!-- 1. Visualizador Estilizado A4 sem barra interna travada (Expansão Natural) -->
+                <div id="contratoPreviewVisual" class="bg-white text-slate-900 rounded-3xl p-6 sm:p-12 shadow-2xl border border-slate-200 font-serif leading-relaxed text-sm min-h-[500px]">
                     <!-- Conteúdo com assinaturas renderizadas -->
                 </div>
 
@@ -1478,15 +1488,15 @@ if (strpos($client_ip, ',') !== false) {
                 <textarea id="contratoGeradoTexto" class="hidden input-modern font-mono text-sm h-[500px]" placeholder="O contrato gerado aparecerá aqui..."></textarea>
 
                 <!-- Ações -->
-                <div id="acoesResultado" class="hidden mt-8 flex flex-wrap gap-3 items-center justify-center">
-                    <button type="button" id="btnAbrirAssinaturaDigital" class="action-btn bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg shadow-purple-600/30 cursor-pointer">
-                        <i class="fa-solid fa-signature"></i> Assinar Digitalmente
-                    </button>
+                <div id="acoesResultado" class="hidden mt-10 mb-20 p-6 bg-white rounded-3xl border-2 border-indigo-100 shadow-xl flex flex-wrap gap-3 items-center justify-center">
                     <button type="button" id="btnExportarPdfJuridico" class="action-btn bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-lg shadow-red-600/30 cursor-pointer">
                         <i class="fa-solid fa-file-pdf"></i> Baixar PDF Jurídico
                     </button>
                     <button type="button" id="btnTransferirParaAssinador" class="action-btn bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white shadow-lg shadow-cyan-600/30 cursor-pointer">
                         <i class="fa-solid fa-paper-plane"></i> Abrir no Assinador de PDF
+                    </button>
+                    <button type="button" id="btnAbrirAssinaturaDigital" class="action-btn bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg shadow-purple-600/30 cursor-pointer">
+                        <i class="fa-solid fa-signature"></i> Assinar Digitalmente
                     </button>
                     <button id="btnCopiarConteudoContrato" class="action-btn bg-slate-100 hover:bg-slate-200 text-slate-700">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
